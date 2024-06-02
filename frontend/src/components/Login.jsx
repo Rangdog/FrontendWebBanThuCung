@@ -20,8 +20,9 @@ const Login = ()=>{
     // {resolver: yupResolver(schema)}
     const {handleSubmit, control} = useForm()
     const submission = (data)=>{
+        console.log(data)
         AxiosInstance.post(`api/web/login/`,{
-            email:data.email,
+            username:data.email,
             password: data.password,
         })
         .then((response) =>{
@@ -39,7 +40,7 @@ const Login = ()=>{
                 <Box className={"whiteBox"}>
                         <Box className={"itemBox"}>
                             <Box className={"title"}>
-                                Login for Auth App
+                                Đăng nhập
                             </Box>
                         </Box>
                         <Box className={"itemBox"}>
@@ -52,8 +53,8 @@ const Login = ()=>{
                             <MyButton label={"Login"} type = {"submit"}/>
                         </Box>
                         <Box className={"itemBox"} sx={{flexDirection:'column'}}>
-                            <Link to = "/register" >No account yet please Register</Link>
-                            <Link to = "/request/password_reset" > Password Forgotten? Click here </Link>
+                            <Link to = "/register" >Đăng ký</Link>
+                            <Link to = "/request/password_reset" > Quên mật khẩu? Click here </Link>
                         </Box>  
                 </Box>
             </form>

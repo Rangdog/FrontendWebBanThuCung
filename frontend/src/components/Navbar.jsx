@@ -186,15 +186,15 @@ export default function PrimarySearchAppBar() {
       </MenuItem>
     </Menu>
   );
-  useEffect(()=>{
-      getCartItem();
-      window.addEventListener('updateCartItems', getCartItem);
+  // useEffect(()=>{
+  //     getCartItem();
+  //     window.addEventListener('updateCartItems', getCartItem);
 
-      return () => {
-        // Clean up event listener
-        window.removeEventListener('updateCartItems', getCartItem);
-      };
-  },[])
+  //     return () => {
+  //       // Clean up event listener
+  //       window.removeEventListener('updateCartItems', getCartItem);
+  //     };
+  // },[])
   const handleClickShopShoes = ()=>{
     navigate("/")
   }
@@ -218,7 +218,7 @@ export default function PrimarySearchAppBar() {
             sx={{ display: { xs: 'none', sm: 'block' } }}
             onClick={handleClickShopShoes}
           >
-            SHOP SHOES
+            PET SHOP
           </Typography>
           <Search>
             <SearchIconWrapper>
