@@ -6,6 +6,7 @@ import './App.css'
 import Navbar from './components/Navbar'
 import Login from './components/Login'
 import Home from './components/Home'
+import Register from './components/Register'
 import { Routes,Route, useLocation  } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack';
 
@@ -20,6 +21,7 @@ function App() {
                       <Route path="/" element={<Home />} />
                       {/* <Route path="/" element={<Order />} /> */}
                       <Route path="/login" element={<Login />} />
+                      <Route path="/register" element={<Register />} />
                       {/* <Route path="/register" element={<Register />} /> */}
                       {/* <Route path="/cart" element={<Cart />} /> */}
                     </Routes>

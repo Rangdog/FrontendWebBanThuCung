@@ -22,3 +22,10 @@
 .prev{
     left: -30px;
 } */
+
+.pagination-container {
+  display: flex;
+  justify-content: flex-end; /* Đặt `Pagination` sang trái */
+  align-items: flex-end; /* Đặt `Pagination` xuống dưới */
+  margin-right: 30px;
+}
