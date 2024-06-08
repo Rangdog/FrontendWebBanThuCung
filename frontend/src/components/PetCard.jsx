@@ -6,37 +6,36 @@ import { PrintTwoTone } from '@mui/icons-material';
 const PetCard = ({ pet, hinhAnh }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [image, setImage] = useState()
+  const fetchImages = async (ids) => {
+    try {
+      const response = await AxiosInstance.post('/center/image/get', [ids], {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        responseType: 'arraybuffer', // Ensure the response is treated as binary data
+      });
+      
+      // Convert the binary data to a base64 string
+      const base64String = btoa(
+        String.fromCharCode(...new Uint8Array(response.data))
+      );
+      return `data:image/jpeg;base64,${base64String}`;
+    } catch (error) {
+      console.error('Error fetching images:', error);
+      return null;
+    }
+  };
   useEffect(() => {
-    const fetchImages = async (ids) => {
-      try {
-        const response = await AxiosInstance.post('/center/image/get', ids, {
-          responseType: 'arraybuffer', // Ensure the response is treated as binary data
-        });
-
-        // Convert the binary data to a base64 string
-        const images = response.data.map(image => {
-          const base64String = btoa(
-            new Uint8Array(image).reduce((data, byte) => data + String.fromCharCode(byte), '')
-          );
-          return `data:image/jpeg;base64,${base64String}`;
-        });
-
-        return images;
-      } catch (error) {
-        console.error('Error fetching images:', error);
-        return [];
-      }
-    };
-
     if (hinhAnh && hinhAnh.length > 0) {
       const loadImages = async () => {
-        const fetchedImages = await fetchImages([hinhAnh[0]]);
-        setImage(fetchedImages[0]);
+        const fetchedImages = await fetchImages(8);
+        console.log(fetchedImages)
+        setImage(fetchedImages);
       };
 
       loadImages();
     }
-  }, [hinhAnh]);
+  }, []);
   const handleBuyClick = () => {
     setOpenSnackbar(true);
     // You can add more functionality here, such as adding the pet to a cart
@@ -52,7 +51,7 @@ const PetCard = ({ pet, hinhAnh }) => {
           component="img"
           height="140"
           image={image}
-          alt={pet.name}
+          alt={pet.tenThuCung}
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">

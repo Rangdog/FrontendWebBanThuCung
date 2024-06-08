@@ -59,12 +59,12 @@ const PetList = () => {
     const getPetTest = async()=>{
       try {
           const res = await AxiosInstance.get("center/thucung");
-          // console.log(res.data);
+          console.log(res.data);
           setPetTest(res.data);
       } catch (error) {
           console.error('Error fetching products:', error);
       }
-  }
+    }
     const getPet = async()=>{
         try {
             const res = await AxiosInstance.get("center/ct-thu-cung");
