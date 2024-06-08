@@ -51,7 +51,7 @@ export default function NavbarAdmin(props) {
               </ListItem>
 
               <ListItem key={2} disablePadding>
-                <ListItemButton>
+                <ListItemButton component = {Link} to = "/admin/nhanvien" selected={"/admin/nhanvien" === path}>
                   <ListItemIcon>
                    <InboxIcon />
                   </ListItemIcon>
@@ -60,7 +60,7 @@ export default function NavbarAdmin(props) {
               </ListItem>
 
               <ListItem key={3} disablePadding>
-                <ListItemButton>
+                <ListItemButton component = {Link} to = "/admin/chinhanh" selected={"/admin/chinhanh" === path}>
                   <ListItemIcon>
                    <InboxIcon />
                   </ListItemIcon>
@@ -69,16 +69,16 @@ export default function NavbarAdmin(props) {
               </ListItem>
 
               <ListItem key={4} disablePadding>
-                <ListItemButton>
+                <ListItemButton component = {Link} to = "/admin/gia" selected={"/admin/gia" === path}>
                   <ListItemIcon>
                    <InboxIcon />
                   </ListItemIcon>
-                  <ListItemText primary={"Quản lý chi giá"} />
+                  <ListItemText primary={"Quản lý giá"} />
                 </ListItemButton>
               </ListItem>
 
               <ListItem key={5} disablePadding>
-                <ListItemButton>
+                <ListItemButton component = {Link} to = "/admin/loaisp" selected={"/admin/loaisp" === path}>
                   <ListItemIcon>
                    <InboxIcon />
                   </ListItemIcon>
@@ -87,16 +87,16 @@ export default function NavbarAdmin(props) {
               </ListItem>
 
               <ListItem key={6} disablePadding>
-                <ListItemButton>
+                <ListItemButton component = {Link} to = "/admin/loaithucung" selected={"/admin/loaithucung" === path}>
                   <ListItemIcon>
                    <InboxIcon />
                   </ListItemIcon>
-                  <ListItemText primary={"Quản lý loài "} />
+                  <ListItemText primary={"Quản lý loài"} />
                 </ListItemButton>
               </ListItem>
 
               <ListItem key={7} disablePadding>
-                <ListItemButton>
+                <ListItemButton component = {Link} to = "/admin/giong" selected={"/admin/giong" === path}>
                   <ListItemIcon>
                    <InboxIcon />
                   </ListItemIcon>
@@ -122,6 +122,15 @@ export default function NavbarAdmin(props) {
                      <InboxIcon /> 
                   </ListItemIcon>
                   <ListItemText primary={"Xem danh thu"} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem key={10} disablePadding>
+                <ListItemButton>
+                  <ListItemIcon>
+                     <InboxIcon /> 
+                  </ListItemIcon>
+                  <ListItemText primary={"Đăng xuất"} />
                 </ListItemButton>
               </ListItem>
           </List>
