@@ -21,8 +21,8 @@ const Login = ()=>{
     const {handleSubmit, control} = useForm()
     const submission = (data)=>{
         console.log(data)
-        AxiosInstance.post(`api/web/login/`,{
-            username:data.email,
+        AxiosInstance.post(`identity/login`,{
+            username:data.username,
             password: data.password,
         })
         .then((response) =>{
@@ -44,7 +44,7 @@ const Login = ()=>{
                             </Box>
                         </Box>
                         <Box className={"itemBox"}>
-                            <MyTextField label = {"Email"} name = {"email"} control={control}/>
+                            <MyTextField label = {"Username"} name = {"username"} control={control}/>
                         </Box>
                         <Box className={"itemBox"}>
                             <MyPassField label = {"Password"} name = {"password"} control={control}/>

@@ -21,7 +21,7 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Thêm chi nhánh mới</DialogTitle>
+      <DialogTitle>Thêm loài thứ cưng mới</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
           <TextField
@@ -55,7 +55,7 @@ const EditPetForm = ({ open, onClose, onSubmit, pet }) => {
   
     return (
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Sửa chi nhánh</DialogTitle>
+        <DialogTitle>Sửa loài thú cưng</DialogTitle>
         <DialogContent>
           <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
             <TextField
@@ -166,8 +166,8 @@ const ManageAccount = () => {
                 <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>Mã chi nhánh</TableCell>
-                        <TableCell>Tên chi nhánh</TableCell>
+                        <TableCell>Mã loài thú cưng</TableCell>
+                        <TableCell>Tên loài thú cưng</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
