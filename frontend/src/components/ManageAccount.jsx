@@ -1,16 +1,8 @@
 import React,{ useState, useEffect, useRef} from 'react';
 import { useForm } from 'react-hook-form';
-import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper } from '@mui/material';
-
-const AdminPanel = () => {
-  return (
-    <div>
-      <SearchBar />
-      <ActionButtons />
-      <PetTable />
-    </div>
-  );
-};
+import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import AxiosInstance from './AxiosInstante';
+import { useSnackbar } from 'notistack';
 
 const SearchBar = () => {
   return (
@@ -22,8 +14,22 @@ const SearchBar = () => {
 };
 
 const RegistrationForm = ({ open, onClose, onSubmit }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
 
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [usernames, setUsernames] = useState([]);
+  useEffect(() => {
+    // Hàm gọi API để lấy danh sách usernames
+    const fetchUsernames = async () => {
+      try {
+        const response = await AxiosInstance.get('/identity/nhanvien/chuacotk'); // Thay URL bằng endpoint API thực tế của bạn
+        setUsernames(response.data);
+      } catch (error) {
+        console.error('Error fetching usernames:', error);
+      }
+    };
+
+    fetchUsernames();
+  }, []);
   const handleFormSubmit = (data) => {
     onSubmit(data);
   };
@@ -49,14 +55,22 @@ const RegistrationForm = ({ open, onClose, onSubmit }) => {
             error={!!errors.ten}
             helperText={errors.ten ? "Tên là bắt buộc" : ""}
           />
-          <TextField
-            margin="dense"
-            label="Tên đăng nhập"
-            fullWidth
-            {...register("tenDangNhap", { required: true })}
-            error={!!errors.tenDangNhap}
-            helperText={errors.tenDangNhap ? "Tên đăng nhập là bắt buộc" : ""}
-          />
+          <FormControl fullWidth margin="dense" error={!!errors.tenDangNhap}>
+            <InputLabel id="tenDangNhap-label">Tên đăng nhập</InputLabel>
+            <Select
+              labelId="tenDangNhap-label"
+              label="Tên đăng nhập"
+              {...register("tenDangNhap", { required: true })}
+            >
+              {usernames.map((username, index) => (
+                <MenuItem key={index} value={username}>
+                  {username}
+                </MenuItem>
+              ))}
+            </Select>
+            {errors.tenDangNhap && <p style={{ color: 'red' }}>Tên đăng nhập là bắt buộc</p>}
+          </FormControl>
+
           <TextField
             margin="dense"
             label="Mật khẩu"
@@ -101,45 +115,97 @@ const RegistrationForm = ({ open, onClose, onSubmit }) => {
 };
 
 const ManageAccount = () => {
-    const [selectedPetIndex, setSelectedPetIndex] = useState(null);
+    const [account, setAccount] =useState([]);
+    const getAccount = async()=>{
+      try {
+          const res = await AxiosInstance.get("/identity/tk");
+          console.log(res.data);
+          setAccount(res.data);
+      } catch (error) {
+          console.error('Error fetching products:', error);
+      }
+  }
+    const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const tableRef = useRef(null);
-  // Assume pets data is available in pets array
-  const account = [
-    { tenDangNhap: "lamvu2010", matKhau: "123", quyen: "khachhang", trangThai: true, maXacNhan: null, thoiGianTaoMa: null, thoiGianHetHan: null, thoiGianXacNhan: null },
-    { tenDangNhap: "NV1", matKhau: "123", quyen: "admin", trangThai: true, maXacNhan: null, thoiGianTaoMa: null, thoiGianHetHan: null, thoiGianXacNhan: null },
-    { tenDangNhap: "NV2", matKhau: "123", quyen: "quanly", trangThai: true, maXacNhan: null, thoiGianTaoMa: null, thoiGianHetHan: null, thoiGianXacNhan: null },
-    { tenDangNhap: "NV3", matKhau: "123", quyen: "nhanvien", trangThai: true, maXacNhan: null, thoiGianTaoMa: null, thoiGianHetHan: null, thoiGianXacNhan: null },
-    { tenDangNhap: "NV4", matKhau: "123", quyen: "nhanvien", trangThai: true, maXacNhan: null, thoiGianTaoMa: null, thoiGianHetHan: null, thoiGianXacNhan: null }
-    // Thêm các đối tượng người dùng khác nếu cần
-  ];
-// Hàm xử lý khi chọn một hàng
+    const { enqueueSnackbar } = useSnackbar();
+    const [openDialogResetMK, setOpenDialogResetMK] = useState(false);
+    const [responseData, setResponseData] = useState(null);
+
     const handleRowClick = (index) => {
-        if (selectedPetIndex == index){
-            setSelectedPetIndex(null);
+        if (selectedAccountIndex == index){
+            setSelectedAccountIndex(null);
         }
         else{
-            setSelectedPetIndex(index);
+            setSelectedAccountIndex(index);
         }
   };
 
   // Hàm xử lý khi ấn vào nút Edit
-  const handleEdit = () => {
+  const handleEdit = async() => {
     // Thực hiện hành động edit với thông tin của hàng được chọn
-    if(selectedPetIndex !== null) {
-      const selectedPet = pets[selectedPetIndex];
-      // Thực hiện hành động edit với selectedPet
-      console.log("Edit pet:", selectedPet);
+    if(selectedAccountIndex !== null) {
+      const selectedAccount = account[selectedAccountIndex];
+      try {
+        const res = await AxiosInstance.put("/identity/tk/reset", {
+            tenDangNhap: selectedAccount.tenDangNhap,
+        });
+        console.log(res.data);
+        if(res.status === 200){
+          setResponseData(res.data);
+          setOpenDialogResetMK(true);
+          enqueueSnackbar('Reset mật khẩu thành công', {
+            variant: 'success',
+            autoHideDuration: 3000, // Set thời gian hiển thị là 3 giây
+          });
+
+        }
+        else{
+          enqueueSnackbar('Lỗi', {
+            variant: 'error',
+            autoHideDuration: 3000, // Set thời gian hiển thị là 3 giây
+          });
+        }
+        getAccount();
+        setAccount((prevAccounts) =>
+            prevAccounts.map((acc, index) =>
+                index === selectedAccountIndex ? res.data : acc
+            )
+        );
+      } catch (error) {
+          console.error('Error updating account status:', error);
+      }
     }
   };
 
+  const handleCloseDialog = () => {
+    setOpenDialogResetMK(false);
+    setResponseData(null);
+  };
   // Hàm xử lý khi ấn vào nút Delete
-  const handleDelete = () => {
+  const handleDelete = async () => {
     // Thực hiện hành động delete với thông tin của hàng được chọn
-    if(selectedPetIndex !== null) {
-      const selectedPet = pets[selectedPetIndex];
-      // Thực hiện hành động delete với selectedPet
-      console.log("Delete pet:", selectedPet);
+    if(selectedAccountIndex !== null) {
+      const selectedAccount = account[selectedAccountIndex];
+      try {
+        const res = await AxiosInstance.put("/identity/tk", {
+            tenDangNhap: selectedAccount.tenDangNhap,
+            matKhau:selectedAccount.matKhau,
+            trangThai: false
+        });
+        console.log(res.data);
+        enqueueSnackbar('Khóa tài khoản thành công', {
+          variant: 'success',
+          autoHideDuration: 3000, // Set thời gian hiển thị là 3 giây
+        });
+        getAccount();
+        setAccount((prevAccounts) =>
+            prevAccounts.map((acc, index) =>
+                index === selectedAccountIndex ? res.data : acc
+            )
+        );
+    } catch (error) {
+        console.error('Error updating account status:', error);
+    }
     }
   };
   const handleDialogOpen = () => {
@@ -167,27 +233,16 @@ const ManageAccount = () => {
 //   const handleDeselect = () => {
 //     setSelectedUserIndex(null);
 //   };
-
-  // Xử lý sự kiện click ngoài bảng để bỏ chọn hàng
-  useEffect(() => {
-    const handleClickOutsideTable = (event) => {
-      if (tableRef.current && !tableRef.current.contains(event.target)) {
-        setSelectedPetIndex(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutsideTable);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutsideTable);
-    };
-  }, []);
+  useEffect(()=>{
+    getAccount();
+  },[])
   return (
     <>
         <SearchBar/>
-        <ActionButtons onEdit={handleEdit} onDelete={handleDelete} onOpenDialog={handleDialogOpen} isDisabled={selectedPetIndex === null}/>
+        <ActionButtons onEdit={handleEdit} onDelete={handleDelete} onOpenDialog={handleDialogOpen} isDisabled={selectedAccountIndex === null}/>
         <RegistrationForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-            <TableContainer sx={{ maxHeight: 440 }} ref={tableRef}>
+            <TableContainer sx={{ maxHeight: 440 }}>
                 <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                     <TableRow>
@@ -200,7 +255,7 @@ const ManageAccount = () => {
                     {account.map((acc, index) => (
                         <TableRow key={index}
                             onClick={() => handleRowClick(index)}
-                            sx={{ backgroundColor: selectedPetIndex === index ? "#f0f0f0" : "inherit" }}
+                            sx={{ backgroundColor: selectedAccountIndex === index ? "#f0f0f0" : "inherit" }}
                         >
                             <TableCell>{acc.tenDangNhap}</TableCell>
                             <TableCell>{acc.quyen}</TableCell>
@@ -220,6 +275,19 @@ const ManageAccount = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
             /> */}
         </Paper>
+        <Dialog open={openDialogResetMK} onClose={handleCloseDialog}>
+        <DialogTitle>Thông tin mới</DialogTitle>
+        <DialogContent>
+          {responseData && (
+            <div>
+              <p>Mật khẩu reset: {responseData}</p>
+            </div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Đóng</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

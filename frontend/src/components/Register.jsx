@@ -1,52 +1,69 @@
-import '../App.css'
-import { Box, Button } from '@mui/material'
-import MyTextField from './form/MyTextField'
-import MyPassField from './form/MyPassField'
-import MyButton from './form/MyButton'
-import { Link } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import AxiosInstance from './AxiosInstante'
-import { useNavigate } from 'react-router-dom'
+import { Box, Button, TextField } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import AxiosInstance from './AxiosInstante';
+import { useNavigate } from 'react-router-dom';
 
-const Register = ()=>{
-    const {handleSubmit, control} = useForm()
-    const submission = (data)=>{
-        AxiosInstance.post(`register/`,{
-            email:data.email,
+const Register = () => {
+    const { handleSubmit, control, register } = useForm();
+    const navigate = useNavigate();
+
+    const submission = (data) => {
+        AxiosInstance.post(`register/`, {
+            email: data.email,
             password: data.password,
-        })
-        .then(() =>{
-            navigate(`/`)
-        })
-    }
-    return(
-        <div className={"myBackground"}>
-            <form onSubmit={handleSubmit(submission)}>
-                <Box className={"whiteBox"}>
+        }).then(() => {
+            navigate(`/`);
+        });
+    };
+
+    const onlyNumbers = (value) => {
+        return /^\d+$/.test(value);
+    };
+
+    return (
+        <div className={"myBackground"} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <form onSubmit={handleSubmit(submission)} style={{ width: '400px', padding: '20px', borderRadius: '10px' }}>
+                <Box className={"whiteBox"} style = {{width: '100%'}}>
+                    <Box className={"itemBox"} style = {{width: '100%'}}>
+                        <Box className={"title"}>Đăng ký</Box>
+                    </Box>
                     <Box className={"itemBox"}>
-                        <Box className={"title"}>
-                            User registration
+                        <TextField label={"Tên đăng nhập"} {...register('tenDangNhap')}  fullWidth />
+                    </Box>
+                    <Box className={"itemBox"}>
+                        <TextField label={"Mật khẩu"} type="password" {...register('matKhau')} fullWidth />
+                    </Box>
+                    <Box className={"itemBox"}>
+                        <Box style={{ display: 'flex', gap: '10px' }}>
+                            <TextField label={"Họ"} {...register('ho')} fullWidth />
+                            <TextField label={"Tên"} {...register('ten')} fullWidth />
                         </Box>
                     </Box>
                     <Box className={"itemBox"}>
-                        <MyTextField label = {"Email"} name = {"email"} control={control}/>
+                        <TextField label={"CCCD"} {...register('cccd')} fullWidth />
                     </Box>
                     <Box className={"itemBox"}>
-                        <MyPassField label = {"Password"} name = {"password"} control={control}/>
+                        <TextField
+                            label={"SDT"}
+                            {...register('soDienThoai', { validate: onlyNumbers })}
+                            inputProps={{ inputMode: 'numeric' }}
+                            fullWidth 
+                        />
                     </Box>
                     <Box className={"itemBox"}>
-                        <MyPassField label = {"Comfirm password"} name = {"password2"} control={control}/>
+                        <TextField label={"email"} {...register('email')} fullWidth />
                     </Box>
                     <Box className={"itemBox"}>
-                        <MyButton label={"Register"} type = {"submit"}/>
+                        <Button variant="contained" type={"submit"}>Đăng ký</Button>
                     </Box>
                     <Box className={"itemBox"}>
-                        <Link to = "/login" >Already registred? Please login!</Link>
-                    </Box>  
+                        <Link to="/">Có tài khoản, đăng nhập!</Link>
+                    </Box>
                 </Box>
             </form>
         </div>
     )
 }
 
-export default Register
+export default Register;

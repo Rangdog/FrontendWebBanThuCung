@@ -22,13 +22,19 @@ const Login = ()=>{
     const submission = (data)=>{
         console.log(data)
         AxiosInstance.post(`identity/login`,{
-            username:data.username,
-            password: data.password,
+            tenDangNhap:data.username,
+            matKhau: data.password,
         })
         .then((response) =>{
-            console.log(response)
+            localStorage.setItem('tenDangNhap', response.data.tenDangNhap)
+            localStorage.setItem('quyen', response.data.quyen)
             localStorage.setItem('Token', response.data.token)
-            navigate(`/`)
+            if(response.data.quyen === "khachhang"){
+                navigate(`/home`)
+            }
+            else{
+                navigate('/admin')
+            }
         })
         .catch((error) =>{
             control.error('error during login',  error)

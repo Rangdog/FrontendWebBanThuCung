@@ -22,7 +22,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+    <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
                   <Navbar/>
                   <div style={{ paddingTop: '64px' }}> {/* Chỗ này là đặt padding-top để tránh bị che bởi Navbar */}
                     <Routes>

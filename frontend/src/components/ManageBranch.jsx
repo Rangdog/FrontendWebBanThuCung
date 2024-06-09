@@ -1,16 +1,8 @@
 import React,{ useState, useEffect, useRef} from 'react';
 import { useForm } from 'react-hook-form';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper } from '@mui/material';
-
-const AdminPanel = () => {
-  return (
-    <div>
-      <SearchBar />
-      <ActionButtons />
-      <PetTable />
-    </div>
-  );
-};
+import AxiosInstance from './AxiosInstante';
+import { useSnackbar } from 'notistack';
 
 const SearchBar = () => {
   return (
@@ -92,11 +84,22 @@ const ManageAccount = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const tableRef = useRef(null);
+    const [chiNhanh, setChiNhanh] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
+    const getChiNhanh = async ()=>{
+      try{
+        const res = await AxiosInstance.get("/center/chinhanh")
+        setChiNhanh(res.data)
+      }
+      catch(err){
+        console.error(err);
+      }
+    }
   // Assume pets data is available in pets array
-  const chiNhanh = [
-    {maChiNhanh: 1, tenChiNhanh: "Man thiện"},
-    {maChiNhanh: 2, tenChiNhanh: "Trần Thị Hoa"}
-  ]
+  // const chiNhanh = [
+  //   {maChiNhanh: 1, tenChiNhanh: "Man thiện"},
+  //   {maChiNhanh: 2, tenChiNhanh: "Trần Thị Hoa"}
+  // ]
 // Hàm xử lý khi chọn một hàng
     const handleRowClick = (index) => {
         if (selectedbranchIndex == index){
@@ -134,9 +137,18 @@ const ManageAccount = () => {
     setIsDialogOpen(false);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Form Data:", data);
-    // Handle form submission
+  const handleFormSubmit = async(data) => {
+    try{
+      const res = await AxiosInstance.post("/center/chinhanh", data.tenChiNhanh)
+      if(res.status === 200){
+        enqueueSnackbar('Thêm chi nhanh thành công', {variant : 'success', autoHideDuration: 3000} )
+        getChiNhanh()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('Lỗi', {variant : 'error', autoHideDuration: 3000} )
+      console.log(err)
+    }
     handleDialogClose();
   };
   const handleEditDialogOpen = () => {
@@ -161,7 +173,9 @@ const ManageAccount = () => {
       </div>
     );
   };
-
+  useEffect(()=>{
+    getChiNhanh();
+  },[])
   return (
     <>
         <SearchBar/>
