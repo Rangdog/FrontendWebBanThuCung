@@ -1,7 +1,8 @@
 import React,{ useState, useEffect, useRef} from 'react';
 import { useForm } from 'react-hook-form';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper } from '@mui/material';
-
+import AxiosInstance from './AxiosInstante';
+import { useSnackbar } from 'notistack';
 
 const SearchBar = () => {
   return (
@@ -12,7 +13,7 @@ const SearchBar = () => {
   );
 };
 
-const AddBrandForm = ({ open, onClose, onSubmit }) => {
+const AddTypeForm = ({ open, onClose, onSubmit }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleFormSubmit = (data) => {
@@ -21,7 +22,7 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Thêm loại mới</DialogTitle>
+      <DialogTitle>Thêm chi loại sản phẩm mới</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
           <TextField
@@ -30,7 +31,7 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
             fullWidth
             {...register("tenLoaiSanPham", { required: true })}
             error={!!errors.ho}
-            helperText={errors.ho ? "Tên loại sản phẩm là bắt buộc" : ""}
+            helperText={errors.ho ? "Tên loại sản phẩm là bắt buộc là bắt buộc" : ""}
           />
           
         </form>
@@ -43,54 +44,115 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
   );
 };
 
-const EditBrandForm = ({ open, onClose, onSubmit, loai }) => {
-    if(!loai){
-        return null;
+const EditTypeForm = ({ open, onClose, onSubmit, loai }) => {
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+
+  useEffect(() => {
+    if (loai) {
+      setValue('tenLoaiSanPham', loai.tenLoaiSanPham);
+      setValue('maLoaiSanPham', loai.maLoaiSanPham);
     }
-    const { register, handleSubmit, formState: { errors } } = useForm();
-  
-    const handleFormSubmit = (data) => {
-      onSubmit(data);
-    };
-  
-    return (
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Sửa loại</DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-            <TextField
-              margin="dense"
-              label="Tên loại sản phẩm"
-              value={loai.tenLoaiSanPham}
-              fullWidth
-              {...register("tenLoaiSanPham", { required: true })}
-              error={!!errors.ho}
-              helperText={errors.ho ? "Tên loại sản phẩm là bắt buộc" : ""}
-            />
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Hủy</Button>
-          <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
-        </DialogActions>
-      </Dialog>
-    );
+  }, [loai, setValue]);
+
+  const handleFormSubmit = (data) => {
+    onSubmit(data);
   };
+
+
+  if (!loai) {
+    return null;
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Sửa loại</DialogTitle>
+      <DialogContent>
+        <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+          <TextField
+            margin="dense"
+            label="ID"
+            value={loai.maLoaiSanPham}
+            fullWidth
+            InputProps={{
+              readOnly: true,
+            }}
+            {...register('maLoaiSanPham', { required: true })}
+            error={!!errors.maLoaiSanPham}
+            helperText={errors.maLoaiSanPham ? "Mã chi nhánh là bắt buộc" : ""}
+          />
+          <TextField
+            margin="dense"
+            label="Tên chi nhánh"
+            defaultValue={loai.tenLoaiSanPham}
+            fullWidth
+            error={!!errors.tenLoaiSanPham}
+            helperText={errors.tenLoaiSanPham ? "Tên chi nhánh là bắt buộc" : ""}
+            {...register('tenLoaiSanPham', { required: true })}
+          />
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Hủy</Button>
+        <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const ConfirmationDialog = ({ open, onClose, onConfirm }) => {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Xác nhận xóa</DialogTitle>
+      <DialogContent>
+        Bạn có chắc chắn muốn xóa loại sản phẩm này không?
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>No</Button>
+        <Button onClick={onConfirm} variant="contained" color="error">Yes</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 
 const ManageAccount = () => {
     const [selectedTypeIndex, setSelectedTypeIndex] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const tableRef = useRef(null);
+    const [loai, setLoai] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
+    const getLoai = async ()=>{
+      try{
+        const res = await AxiosInstance.get("/center/loaisanpham")
+        setLoai(res.data)
+      }
+      catch(err){
+        console.error(err);
+      }
+    }
   // Assume pets data is available in pets array
-  const loai = [
-    {maLoaiSanPham: 1, tenLoaiSanPham: "Đồ ăn"},
-    {maLoaiSanPham: 2, tenLoaiSanPham: "Thức uống"},
-    {maLoaiSanPham: 3, tenLoaiSanPham: "Thuốc"},
-    {maLoaiSanPham: 5, tenLoaiSanPham: "Vệ sinh"},
-    {maLoaiSanPham: 6, tenLoaiSanPham: "Nhà ở"},
-  ]
+  // const chiNhanh = [
+  //   {maChiNhanh: 1, tenChiNhanh: "Man thiện"},
+  //   {maChiNhanh: 2, tenChiNhanh: "Trần Thị Hoa"}
+  // ]
 // Hàm xử lý khi chọn một hàng
+    const handleConfirmDelete = async (loai) => {
+      console.log(loai.maLoaiSanPham)
+      try {
+          const res = await AxiosInstance.delete(`/center/loaisanpham/${loai.maLoaiSanPham}`);
+          if (res.status === 200) {
+              enqueueSnackbar('Xóa loại sản phẩm thành công', { variant: 'success', autoHideDuration: 3000 });
+              getLoai();
+          }
+      } catch (err) {
+          enqueueSnackbar('Lỗi khi xóa loại sản phẩm', { variant: 'error', autoHideDuration: 3000 });
+          console.error(err);
+      }
+      setIsConfirmOpen(false);
+      setSelectedTypeIndex(null);
+    };
     const handleRowClick = (index) => {
         if (selectedTypeIndex == index){
             setSelectedTypeIndex(null);
@@ -112,12 +174,8 @@ const ManageAccount = () => {
 
   // Hàm xử lý khi ấn vào nút Delete
   const handleDelete = () => {
-    // Thực hiện hành động delete với thông tin của hàng được chọn
-    if(selectedTypeIndex !== null) {
-      const selectedPet = pets[selectedTypeIndex];
-      // Thực hiện hành động delete với selectedPet
-      console.log("Delete pet:", selectedPet);
-    }
+      setIsConfirmOpen(true)
+    
   };
   const handleDialogOpen = () => {
     setIsDialogOpen(true);
@@ -127,9 +185,23 @@ const ManageAccount = () => {
     setIsDialogOpen(false);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Form Data:", data);
-    // Handle form submission
+  const handleFormSubmit = async(data) => {
+    const tenLoaiSanPham = data.tenLoaiSanPham.replace("\"","");
+    try{
+      const res = await AxiosInstance.post("/center/loaisanpham", tenLoaiSanPham,{
+        headers:{
+          'Content-Type':'text/plain'
+        }
+      })
+      if(res.status === 200){
+        enqueueSnackbar('Thêm loại sản phẩm thành công', {variant : 'success', autoHideDuration: 3000} )
+        getLoai()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('Lỗi', {variant : 'error', autoHideDuration: 3000} )
+      console.log(err)
+    }
     handleDialogClose();
   };
   const handleEditDialogOpen = () => {
@@ -140,10 +212,20 @@ const ManageAccount = () => {
     setIsEditOpen(false);
   };
 
-  const handleEditFormSubmit = (data) => {
+  const handleEditFormSubmit = async(data) => {
     console.log("Form Data:", data);
-    // Handle form submission
-    handleDialogClose();
+    try{
+      const res = await AxiosInstance.put("/center/loaisanpham", data)
+      if(res.status === 200){
+        enqueueSnackbar('sửa loại sản phẩm thành công', {variant : 'success', autoHideDuration: 3000} )
+        getLoai()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('lỗi', {variant : 'success', autoHideDuration: 3000} )
+      getLoai()
+    }
+    handleEditDialogClose();
   };
   const ActionButtons = ({ onEdit, onDelete, isDisabled,onOpenDialog,onOpenEditForm  }) => {
     return (
@@ -154,13 +236,16 @@ const ManageAccount = () => {
       </div>
     );
   };
-
+  useEffect(()=>{
+    getLoai();
+  },[])
   return (
     <>
         <SearchBar/>
         <ActionButtons onEdit={handleEdit} onDelete={handleDelete} onOpenDialog={handleDialogOpen} onOpenEditForm = {handleEditDialogOpen} isDisabled={selectedTypeIndex === null}/>
-        <AddBrandForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
-        <EditBrandForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} loai = {loai[selectedTypeIndex]} />
+        <AddTypeForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
+        <EditTypeForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} loai = {loai[selectedTypeIndex]} />
+        <ConfirmationDialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={()=>handleConfirmDelete(loai[selectedTypeIndex])} />
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }} ref={tableRef}>
                 <Table stickyHeader aria-label="sticky table">

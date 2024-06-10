@@ -45,44 +45,89 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
 };
 
 const EditBrandForm = ({ open, onClose, onSubmit, chiNhanh }) => {
-    if(!chiNhanh){
-        return null;
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+    defaultValues: {
+      tenChiNhanh: chiNhanh ? chiNhanh.tenChiNhanh : '',
     }
-    const { register, handleSubmit, formState: { errors } } = useForm();
-  
-    const handleFormSubmit = (data) => {
-      onSubmit(data);
-    };
-  
-    return (
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Sửa chi nhánh</DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-            <TextField
-              margin="dense"
-              label="Tên chi nhánh"
-              value={chiNhanh.tenChiNhanh}
-              fullWidth
-              {...register("tenChiNhanh", { required: true })}
-              error={!!errors.ho}
-              helperText={errors.ho ? "Tên chi nhánh là bắt buộc" : ""}
-            />
-            
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Hủy</Button>
-          <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
-        </DialogActions>
-      </Dialog>
-    );
+  });
+
+  useEffect(() => {
+    if (chiNhanh) {
+      setValue('tenChiNhanh', chiNhanh.tenChiNhanh);
+      setValue('maChiNhanh', chiNhanh.maChiNhanh);
+    }
+  }, [chiNhanh, setValue]);
+
+  const handleFormSubmit = (data) => {
+    onSubmit(data);
   };
+
+  const handleTenChiNhanhChange = (event) => {
+    console.log("Input value changed:", event.target.value);
+    setValue('tenChiNhanh', event.target.value);
+  };
+
+  if (!chiNhanh) {
+    return null;
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Sửa chi nhánh</DialogTitle>
+      <DialogContent>
+        <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+          <TextField
+            margin="dense"
+            label="ID"
+            value={chiNhanh.maChiNhanh}
+            fullWidth
+            InputProps={{
+              readOnly: true,
+            }}
+            {...register('maChiNhanh', { required: true })}
+            error={!!errors.maChiNhanh}
+            helperText={errors.maChiNhanh ? "Mã chi nhánh là bắt buộc" : ""}
+          />
+          <TextField
+            margin="dense"
+            label="Tên chi nhánh"
+            defaultValue={chiNhanh.tenChiNhanh}
+            fullWidth
+            error={!!errors.tenChiNhanh}
+            helperText={errors.tenChiNhanh ? "Tên chi nhánh là bắt buộc" : ""}
+            {...register('tenChiNhanh', { required: true })}
+          />
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Hủy</Button>
+        <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const ConfirmationDialog = ({ open, onClose, onConfirm }) => {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Xác nhận xóa</DialogTitle>
+      <DialogContent>
+        Bạn có chắc chắn muốn xóa chi nhánh này không?
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>No</Button>
+        <Button onClick={onConfirm} variant="contained" color="error">Yes</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 
 const ManageAccount = () => {
     const [selectedbranchIndex, setSelectedbranchIndex] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const tableRef = useRef(null);
     const [chiNhanh, setChiNhanh] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
@@ -101,6 +146,21 @@ const ManageAccount = () => {
   //   {maChiNhanh: 2, tenChiNhanh: "Trần Thị Hoa"}
   // ]
 // Hàm xử lý khi chọn một hàng
+    const handleConfirmDelete = async (chiNhanh) => {
+      console.log(chiNhanh.maChiNhanh)
+      try {
+          const res = await AxiosInstance.delete(`/center/chinhanh/${chiNhanh.maChiNhanh}`);
+          if (res.status === 200) {
+              enqueueSnackbar('Xóa chi nhánh thành công', { variant: 'success', autoHideDuration: 3000 });
+              getChiNhanh();
+          }
+      } catch (err) {
+          enqueueSnackbar('Lỗi khi xóa chi nhánh', { variant: 'error', autoHideDuration: 3000 });
+          console.error(err);
+      }
+      setIsConfirmOpen(false);
+      setSelectedbranchIndex(null);
+    };
     const handleRowClick = (index) => {
         if (selectedbranchIndex == index){
             setSelectedbranchIndex(null);
@@ -122,12 +182,8 @@ const ManageAccount = () => {
 
   // Hàm xử lý khi ấn vào nút Delete
   const handleDelete = () => {
-    // Thực hiện hành động delete với thông tin của hàng được chọn
-    if(selectedbranchIndex !== null) {
-      const selectedPet = pets[selectedbranchIndex];
-      // Thực hiện hành động delete với selectedPet
-      console.log("Delete pet:", selectedPet);
-    }
+      setIsConfirmOpen(true)
+    
   };
   const handleDialogOpen = () => {
     setIsDialogOpen(true);
@@ -138,10 +194,16 @@ const ManageAccount = () => {
   };
 
   const handleFormSubmit = async(data) => {
+    const chinhanh = data.tenChiNhanh.replace("\"","");
+    console.log(chinhanh)
     try{
-      const res = await AxiosInstance.post("/center/chinhanh", data.tenChiNhanh)
+      const res = await AxiosInstance.post("/center/chinhanh", chinhanh,{
+        headers:{
+          'Content-Type':'text/plain'
+        }
+      })
       if(res.status === 200){
-        enqueueSnackbar('Thêm chi nhanh thành công', {variant : 'success', autoHideDuration: 3000} )
+        enqueueSnackbar('Thêm chi nhánh thành công', {variant : 'success', autoHideDuration: 3000} )
         getChiNhanh()
       }
     }
@@ -159,10 +221,20 @@ const ManageAccount = () => {
     setIsEditOpen(false);
   };
 
-  const handleEditFormSubmit = (data) => {
+  const handleEditFormSubmit = async(data) => {
     console.log("Form Data:", data);
-    // Handle form submission
-    handleDialogClose();
+    try{
+      const res = await AxiosInstance.put("/center/chinhanh", data)
+      if(res.status === 200){
+        enqueueSnackbar(' sửa chi nhánh thành công', {variant : 'success', autoHideDuration: 3000} )
+        getChiNhanh()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('lỗi', {variant : 'success', autoHideDuration: 3000} )
+      getChiNhanh()
+    }
+    handleEditDialogClose();
   };
   const ActionButtons = ({ onEdit, onDelete, isDisabled,onOpenDialog,onOpenEditForm  }) => {
     return (
@@ -182,6 +254,7 @@ const ManageAccount = () => {
         <ActionButtons onEdit={handleEdit} onDelete={handleDelete} onOpenDialog={handleDialogOpen} onOpenEditForm = {handleEditDialogOpen} isDisabled={selectedbranchIndex === null}/>
         <AddBrandForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
         <EditBrandForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} chiNhanh = {chiNhanh[selectedbranchIndex]} />
+        <ConfirmationDialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={()=>handleConfirmDelete(chiNhanh[selectedbranchIndex])} />
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }} ref={tableRef}>
                 <Table stickyHeader aria-label="sticky table">

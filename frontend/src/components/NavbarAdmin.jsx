@@ -76,32 +76,14 @@ export default function NavbarAdmin(props) {
               </ListItem>
 
               <ListItem key={4} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/giatc" selected={"/admin/giatc" === path}>
+                <ListItemButton component = {Link} to = "/admin/banggia" selected={"/admin/banggia" === path}>
                   <ListItemIcon>
                    <PriceChangeIcon />
                   </ListItemIcon>
-                  <ListItemText primary={"Quản lý giá thú cưng"} />
+                  <ListItemText primary={"Quản lý giá"} />
                 </ListItemButton>
               </ListItem>
-
-              <ListItem key={5} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/giasp" selected={"/admin/giasp" === path}>
-                  <ListItemIcon>
-                   <PriceChangeIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý giá sản phẩm"} />
-                </ListItemButton>
-              </ListItem>
-
-              <ListItem key={12} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/giakm" selected={"/admin/giakm" === path}>
-                  <ListItemIcon>
-                   <PercentIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý giá đợi khuyến mãi"} />
-                </ListItemButton>
-              </ListItem>
-
+    
               <ListItem key={6} disablePadding>
                 <ListItemButton component = {Link} to = "/admin/loaisp" selected={"/admin/loaisp" === path}>
                   <ListItemIcon>
