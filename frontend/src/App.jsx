@@ -31,7 +31,7 @@ function App() {
   return (
     <SnackbarProvider
       maxSnack={3}
-      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
     >
       <Navbar />
       <div style={{ paddingTop: "64px" }}>
@@ -50,6 +50,7 @@ function App() {
           <Route path="/orderdetail" element={<OrderDetail />} />
           <Route path="/product/:id" component={ProductItem} />
           {/* <Route path="/register" element={<Register />} /> */}
+          {/* <Route path="/cart" element={<Cart />} /> */}
         </Routes>
         <Routes>
           <Route

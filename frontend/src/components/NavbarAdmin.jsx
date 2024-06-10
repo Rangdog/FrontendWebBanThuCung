@@ -13,6 +13,13 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import BadgeIcon from '@mui/icons-material/Badge';
+import PetsIcon from '@mui/icons-material/Pets';
+import PriceChangeIcon from '@mui/icons-material/PriceChange';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import SpaIcon from '@mui/icons-material/Spa';
+import PercentIcon from '@mui/icons-material/Percent';
 import {Link, useLocation} from 'react-router-dom';
 const drawerWidth = 240;
 
@@ -44,7 +51,7 @@ export default function NavbarAdmin(props) {
               <ListItem key={1} disablePadding>
                 <ListItemButton component = {Link} to = "/admin" selected={"/admin" === path} >
                   <ListItemIcon>
-                   <InboxIcon />
+                   <AccountCircleIcon />
                   </ListItemIcon>
                   <ListItemText primary={"Quản lý Tài khoản"} />
                 </ListItemButton>
@@ -53,7 +60,7 @@ export default function NavbarAdmin(props) {
               <ListItem key={2} disablePadding>
                 <ListItemButton component = {Link} to = "/admin/nhanvien" selected={"/admin/nhanvien" === path}>
                   <ListItemIcon>
-                   <InboxIcon />
+                   <BadgeIcon />
                   </ListItemIcon>
                   <ListItemText primary={"Quản lý nhân viên"} />
                 </ListItemButton>
@@ -69,36 +76,54 @@ export default function NavbarAdmin(props) {
               </ListItem>
 
               <ListItem key={4} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/gia" selected={"/admin/gia" === path}>
+                <ListItemButton component = {Link} to = "/admin/giatc" selected={"/admin/giatc" === path}>
                   <ListItemIcon>
-                   <InboxIcon />
+                   <PriceChangeIcon />
                   </ListItemIcon>
-                  <ListItemText primary={"Quản lý giá"} />
+                  <ListItemText primary={"Quản lý giá thú cưng"} />
                 </ListItemButton>
               </ListItem>
 
               <ListItem key={5} disablePadding>
+                <ListItemButton component = {Link} to = "/admin/giasp" selected={"/admin/giasp" === path}>
+                  <ListItemIcon>
+                   <PriceChangeIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={"Quản lý giá sản phẩm"} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem key={12} disablePadding>
+                <ListItemButton component = {Link} to = "/admin/giakm" selected={"/admin/giakm" === path}>
+                  <ListItemIcon>
+                   <PercentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={"Quản lý giá đợi khuyến mãi"} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem key={6} disablePadding>
                 <ListItemButton component = {Link} to = "/admin/loaisp" selected={"/admin/loaisp" === path}>
                   <ListItemIcon>
-                   <InboxIcon />
+                   <Inventory2Icon />
                   </ListItemIcon>
                   <ListItemText primary={"Quản lý loại"} />
                 </ListItemButton>
               </ListItem>
 
-              <ListItem key={6} disablePadding>
+              <ListItem key={7} disablePadding>
                 <ListItemButton component = {Link} to = "/admin/loaithucung" selected={"/admin/loaithucung" === path}>
                   <ListItemIcon>
-                   <InboxIcon />
+                   <PetsIcon />
                   </ListItemIcon>
                   <ListItemText primary={"Quản lý loài"} />
                 </ListItemButton>
               </ListItem>
 
-              <ListItem key={7} disablePadding>
+              <ListItem key={8} disablePadding>
                 <ListItemButton component = {Link} to = "/admin/giong" selected={"/admin/giong" === path}>
                   <ListItemIcon>
-                   <InboxIcon />
+                   <SpaIcon />
                   </ListItemIcon>
                   <ListItemText primary={"Quản lý giông"} />
                 </ListItemButton>
@@ -107,7 +132,7 @@ export default function NavbarAdmin(props) {
           <Divider />
           <List>
         
-              <ListItem key={8} disablePadding>
+              <ListItem key={9} disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
                      <InboxIcon /> 
@@ -116,7 +141,7 @@ export default function NavbarAdmin(props) {
                 </ListItemButton>
               </ListItem>
 
-              <ListItem key={9} disablePadding>
+              <ListItem key={10} disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
                      <InboxIcon /> 
@@ -125,7 +150,7 @@ export default function NavbarAdmin(props) {
                 </ListItemButton>
               </ListItem>
 
-              <ListItem key={10} disablePadding>
+              <ListItem key={11} disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
                      <InboxIcon /> 

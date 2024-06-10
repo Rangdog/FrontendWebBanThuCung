@@ -1,8 +1,8 @@
 import React,{ useState, useEffect, useRef} from 'react';
 import { useForm } from 'react-hook-form';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper, FormControl,InputLabel,MenuItem, Select} from '@mui/material';
-
-
+import AxiosInstance from './AxiosInstante';
+import { useSnackbar } from 'notistack';
 const SearchBar = () => {
   return (
     <div>
@@ -66,72 +66,88 @@ const EmployeeDetailDialog = ({ open, onClose, employee }) => {
 const RegistrationForm = ({ open, onClose, onSubmit }) => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
   const chucVu = watch('chucVu', '');
+  const maChiNhanh = watch('maChiNhanh', '');
+  const quyen  = localStorage.getItem('quyen')
+  const [chinhanh, setChiNhanh] = useState([])
+  const getchinhanh = async () =>{
+      try{
+          const res = await  AxiosInstance.get("center/chinhanh")
+          setChiNhanh(res.data)
+      }
+      catch(err){
+        console.error(err)
+      }
+  }
+  let danhSachChucVu = []
+  if (quyen === 'admin'){
+      danhSachChucVu = [
+        {value: 'admin', label:'Admin'},
+        {value: 'quanly', label: 'Quản lý'},
+        {value: 'nhanvien', label: 'Nhân viên'}
+      ]
+  }
+  else if (quyen === 'quanly'){
+    danhSachChucVu = [
+      {value: 'quanly', label: 'Quản lý'},
+      {value: 'nhanvien', label: 'Nhân viên'}
+    ]
+  }
+  else{
+    danhSachChucVu = [
+      {value: 'nhanvien', label: 'Nhân viên'}
+    ]
+  }
   const handleFormSubmit = (data) => {
     onSubmit(data);
   };
+
+  useEffect(()=>{
+    getchinhanh()
+  },[])
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Thêm nhân viên</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-            <FormControl fullWidth margin="dense">
-                <InputLabel id="taikhoan-label">Tài khoản</InputLabel>
-                <Select
-                labelId="taikhoan-label"
-                value={chucVu}
-                onChange={(e) => setValue('chucVu', e.target.value)}
-                label="Chức vụ"
-                >
-                <MenuItem value="admin">Admin</MenuItem>
-                <MenuItem value="quanly">Quản lý</MenuItem>
-                <MenuItem value="nhanvien">Nhân viên</MenuItem>
-                </Select>
-            </FormControl>
-          <TextField
-            margin="dense"
-            label="Mã nhân viên"
-            fullWidth
-            {...register("maNhanVien", { required: true })}
-            error={!!errors.ho}
-            helperText={errors.ho ? "Mã nhân viên là bắt buộc" : ""}
-          />
           <TextField
             margin="dense"
             label="Họ"
             fullWidth
             {...register("ho", { required: true })}
-            error={!!errors.ten}
-            helperText={errors.ten ? "Họ là bắt buộc" : ""}
+            error={!!errors.ho}
+            helperText={errors.ho ? "Họ là bắt buộc" : ""}
           />
           <TextField
             margin="dense"
             label="Tên"
             fullWidth
             {...register("ten", { required: true })}
-            error={!!errors.tenDangNhap}
-            helperText={errors.tenDangNhap ? "Tên là bắt buộc" : ""}
+            error={!!errors.ten}
+            helperText={errors.ten ? "Tên là bắt buộc" : ""}
           />
           <TextField
             margin="dense"
             label="CCCD"
             fullWidth
             {...register("cccd", { required: true })}
-            error={!!errors.matKhau}
-            helperText={errors.matKhau ? "CCCD là bắt buộc" : ""}
+            error={!!errors.cccd}
+            helperText={errors.cccd ? "CCCD là bắt buộc" : ""}
           />
-          <FormControl fullWidth margin="dense">
+          <FormControl fullWidth margin="dense" error = {!!errors.chucVu}>
             <InputLabel id="chucVu-label">Chức vụ</InputLabel>
             <Select
               labelId="chucVu-label"
               value={chucVu}
               onChange={(e) => setValue('chucVu', e.target.value)}
               label="Chức vụ"
+              {...register('chucVu', {required: true})}
             >
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="quanly">Quản lý</MenuItem>
-              <MenuItem value="nhanvien">Nhân viên</MenuItem>
+              {danhSachChucVu.map((item) => (
+                <MenuItem key={item.value} value={item.value}>{item.label}</MenuItem>
+              ))}
             </Select>
+            {errors.chucVu && <p style = {{color:'red'}}>Chức vụ là bắt buộc</p>}
           </FormControl>
           <TextField
             margin="dense"
@@ -149,19 +165,34 @@ const RegistrationForm = ({ open, onClose, onSubmit }) => {
             error={!!errors.email}
             helperText={errors.email ? "Email là bắt buộc" : ""}
           />
-          <TextField
+          <FormControl fullWidth margin='dense' error = {!!errors.maChiNhanh}>
+            <InputLabel id = "machinhanh=label">Mã chi nhánh</InputLabel>
+            <Select
+            labelId = "machinhanh-label"
+            value={maChiNhanh}
+            onChange={(e)=> setValue('maChiNhanh', e.target.value)}
+            label="Mã chi nhánh"
+            {...register('maChiNhanh', {required: true})}
+            >
+              {chinhanh.map((item)=>(
+                <MenuItem key = {item.maChiNhanh} value={item.maChiNhanh}>{item.tenChiNhanh}</MenuItem>
+              ))}
+            </Select>
+            {errors.maChiNhanh && <p style={{color: 'red'}}>Mã chi nhánh là bắt buộc</p>}
+          </FormControl>
+          {/* <TextField
             margin="dense"
             label="Mã chi nhánh"
             fullWidth
             {...register("maChiNhanh", { required: true })}
             error={!!errors.email}
             helperText={errors.email ? "Mã chi nhánh là bắt buộc" : ""}
-          />
+          /> */}
         </form>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Hủy</Button>
-        <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Đăng ký</Button>
+        <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Thêm nhân viên</Button>
       </DialogActions>
     </Dialog>
   );
@@ -172,13 +203,24 @@ const ManageEmployees = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
     const tableRef = useRef(null);
+    const { enqueueSnackbar } = useSnackbar();
+    const [employees, setEmployees] = useState([]);
+    const getEmployees = async()=>{
+      try {
+          const res = await AxiosInstance.get("/identity/nhanvien");
+          console.log(res.data);
+          setEmployees(res.data);
+      } catch (error) {
+          console.error('Error fetching products:', error);
+      }
+    }
   // Assume pets data is available in pets array
-  const employees = [
-    { maNhanVien: "NV1", ho: "Vũ Văn", ten: "Lâm", cccd: "1234567890", chucVu: "admin", soDienThoai: "0917", email: "lamvu", maChiNhanh: 1, hinhAnh: null },
-    { maNhanVien: "NV2", ho: "Trần Gia", ten: "Long", cccd: "12345678910", chucVu: "quanly", soDienThoai: "0917", email: "gialong", maChiNhanh: 1, hinhAnh: null },
-    { maNhanVien: "NV3", ho: "Đoàn Ngọc", ten: "Tài", cccd: "987654321", chucVu: "nhanvien", soDienThoai: "0917", email: "ngoctai", maChiNhanh: 2, hinhAnh: null },
-    { maNhanVien: "NV4", ho: "Hà Xuân", ten: "Thanh", cccd: "10987654321", chucVu: "nhanvien", soDienThoai: "0917", email: "xuanthanh", maChiNhanh: 2, hinhAnh: null }
-  ];
+  // const employees = [
+  //   { maNhanVien: "NV1", ho: "Vũ Văn", ten: "Lâm", cccd: "1234567890", chucVu: "admin", soDienThoai: "0917", email: "lamvu", maChiNhanh: 1, hinhAnh: null },
+  //   { maNhanVien: "NV2", ho: "Trần Gia", ten: "Long", cccd: "12345678910", chucVu: "quanly", soDienThoai: "0917", email: "gialong", maChiNhanh: 1, hinhAnh: null },
+  //   { maNhanVien: "NV3", ho: "Đoàn Ngọc", ten: "Tài", cccd: "987654321", chucVu: "nhanvien", soDienThoai: "0917", email: "ngoctai", maChiNhanh: 2, hinhAnh: null },
+  //   { maNhanVien: "NV4", ho: "Hà Xuân", ten: "Thanh", cccd: "10987654321", chucVu: "nhanvien", soDienThoai: "0917", email: "xuanthanh", maChiNhanh: 2, hinhAnh: null }
+  // ];
 // Hàm xử lý khi chọn một hàng
     const handleRowClick = (index) => {
         if (selectedEmployee == index){
@@ -212,9 +254,21 @@ const ManageEmployees = () => {
     setIsDialogOpen(false);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Form Data:", data);
-    // Handle form submission
+  const handleFormSubmit = async (data) => {
+    console.log(data)
+    try{
+      const res = await AxiosInstance.post("/identity/nhanvien",data)
+      if(res.status === 200){
+        enqueueSnackbar('Tạo nhân viên thành công', {
+          variant: 'success',
+          autoHideDuration: 3000, // Set thời gian hiển thị là 3 giây
+        });
+        getEmployees()
+      }
+    }
+    catch(err){
+      console.log(err);
+    }
     handleDialogClose();
   };
 
@@ -232,7 +286,9 @@ const ManageEmployees = () => {
 //   const handleDeselect = () => {
 //     setSelectedUserIndex(null);
 //   };
-
+  useEffect(()=>{
+    getEmployees()
+  },[])
   return (
     <>
         <SearchBar/>
