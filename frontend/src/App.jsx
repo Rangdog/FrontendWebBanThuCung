@@ -15,6 +15,7 @@ import ManageType from './components/ManageType'
 import ManagePet from './components/ManagePet'
 import ManageBreeds from './components/ManageBreeds'
 import ManagePrice from './components/ManagePrice'
+import ImportProduct from './components/ImportProduct'
 
 import { Routes,Route, useLocation  } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack';
@@ -42,6 +43,7 @@ function App() {
                       <Route path="/admin/loaisp" element={<NavbarAdmin content={<ManageType/>} />} />
                       <Route path="/admin/loaithucung" element={<NavbarAdmin content={<ManagePet/>} />} />
                       <Route path="/admin/giong" element={<NavbarAdmin content={<ManageBreeds/>} />} />
+                      <Route path="/admin/nhaphang" element={<NavbarAdmin content={<ImportProduct/>} />} />
                     </Routes>
                   </div>
         </SnackbarProvider>

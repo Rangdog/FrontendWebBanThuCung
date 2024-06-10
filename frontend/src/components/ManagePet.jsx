@@ -137,16 +137,15 @@ const ManageAccount = () => {
   //   {maChiNhanh: 2, tenChiNhanh: "Trần Thị Hoa"}
   // ]
 // Hàm xử lý khi chọn một hàng
-    const handleConfirmDelete = async (chiNhanh) => {
-      console.log(chiNhanh.maChiNhanh)
+    const handleConfirmDelete = async (pet) => {
       try {
-          const res = await AxiosInstance.delete(`/center/chinhanh/${chiNhanh.maChiNhanh}`);
+          const res = await AxiosInstance.delete(`/center/loaithucung/${pet.maLoaiThuCung}`);
           if (res.status === 200) {
-              enqueueSnackbar('Xóa chi nhánh thành công', { variant: 'success', autoHideDuration: 3000 });
-              getChiNhanh();
+              enqueueSnackbar('Xóa loại thú cưng thành công', { variant: 'success', autoHideDuration: 3000 });
+              getPet();
           }
       } catch (err) {
-          enqueueSnackbar('Lỗi khi xóa chi nhánh', { variant: 'error', autoHideDuration: 3000 });
+          enqueueSnackbar('Lỗi khi xóa thú cưng', { variant: 'error', autoHideDuration: 3000 });
           console.error(err);
       }
       setIsConfirmOpen(false);

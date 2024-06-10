@@ -1,7 +1,8 @@
 import React,{ useState, useEffect, useRef} from 'react';
 import { useForm } from 'react-hook-form';
-import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper } from '@mui/material';
-
+import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper,  Select, MenuItem, FormControl, InputLabel, FormHelperText } from '@mui/material';
+import AxiosInstance from './AxiosInstante';
+import { useSnackbar } from 'notistack';
 
 const SearchBar = () => {
   return (
@@ -12,27 +13,64 @@ const SearchBar = () => {
   );
 };
 
-const AddBrandForm = ({ open, onClose, onSubmit }) => {
+const AddBreedForm = ({ open, onClose, onSubmit }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
-
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [pet, setPet] = useState([])
+  const [error, setError] = useState(false);
   const handleFormSubmit = (data) => {
-    onSubmit(data);
+    if (!selectedPet) {
+      setError('loaiThuCung', { type: 'required', message: 'Trường này là bắt buộc' });
+      return;
+    }
+    onSubmit( {...data, loaiThuCung:selectedPet});
   };
+  const getPet = async()=>{
+    try{
+      const res = await  AxiosInstance.get("center/loaithucung")
+      setPet(res.data)
+  }
+  catch(err){
+    console.error(err)
+  }
+  }
+  useEffect(()=>{
+    getPet()
+  },[])
 
+  const handlePetSelect = (event) => {
+    const selectedPet = pet.find(i => i.maLoaiThuCung === event.target.value);
+    setSelectedPet(selectedPet);
+  };
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Thêm chi nhánh mới</DialogTitle>
+      <DialogTitle>Thêm giống mới</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
           <TextField
             margin="dense"
-            label="Tên loại thú cưng"
+            label="Tên giống mới"
             fullWidth
-            {...register("tenLoaiThuCung", { required: true })}
-            error={!!errors.ho}
-            helperText={errors.ho ? "Tên loại thú cưng là bắt buộc" : ""}
+            {...register("tengiong", { required: true })}
+            error={!!errors.tenLoaiThuCung}
+            helperText={errors.tenLoaiThuCung ? "Tên loài thú cưng là bắt buộc" : ""}
           />
-          
+          <FormControl fullWidth error={error}>
+            <InputLabel id="pet-select-label">Loại thú cưng</InputLabel>
+                  <Select
+                    labelId="pet-select-label"
+                    value={selectedPet ? selectedPet.maLoaiThuCung : ''}
+                    onChange={handlePetSelect}
+                    required
+                  >
+                    {pet.map((i) => (
+                      <MenuItem key={i.maLoaiThuCung} value={i.maLoaiThuCung}>
+                        {i.tenLoaiThuCung}
+                      </MenuItem>
+                    ))}
+                  </Select>
+              {error && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
+          </FormControl>
         </form>
       </DialogContent>
       <DialogActions>
@@ -43,78 +81,140 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
   );
 };
 
-const EditPetForm = ({ open, onClose, onSubmit, breed }) => {
-    if(!breed){
-        return null;
+const EditBreedForm = ({ open, onClose, onSubmit, breed }) => {
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [pet, setPet] = useState([])
+  const [error, setError] = useState(false);
+  const handleFormSubmit = (data) => {
+    if (!selectedPet) {
+      setError('loaiThuCung', { type: 'required', message: 'Trường này là bắt buộc' });
+      return;
     }
-    const { register, handleSubmit, formState: { errors } } = useForm();
-  
-    const handleFormSubmit = (data) => {
-      onSubmit(data);
-    };
-  
-    return (
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Sửa chi nhánh</DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-            <TextField
-              margin="dense"
-              label="Tên loại thú cưng"
-              value={breed.tenLoaiThuCung}
-              fullWidth
-              {...register("tenLoaiThuCung", { required: true })}
-              error={!!errors.ho}
-              helperText={errors.ho ? "Tên loại thú cưng là bắt buộc" : ""}
-            />
-            <TextField
-              margin="dense"
-              label="Tên loại thú cưng"
-              value={breed.tenLoaiThuCung}
-              fullWidth
-              {...register("tenLoaiThuCung", { required: true })}
-              error={!!errors.ho}
-              helperText={errors.ho ? "Tên loại thú cưng là bắt buộc" : ""}
-            />
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Hủy</Button>
-          <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
-        </DialogActions>
-      </Dialog>
-    );
+    onSubmit( {...data, loaiThuCung:selectedPet});
   };
+  const getPet = async()=>{
+    try{
+      const res = await  AxiosInstance.get("center/loaithucung")
+      setPet(res.data)
+  }
+  catch(err){
+    console.error(err)
+  }
+  }
+  useEffect(()=>{
+    if(!breed){
+      return;
+    }
+    setValue('maGiong',breed.maGiong)
+    setValue('tengiong', breed.tengiong)
+    setSelectedPet(breed.loaiThuCung)
+    getPet()
+  },[breed])
+  const handlePetSelect = (event) => {
+    const selectedPet = pet.find(i => i.maLoaiThuCung === event.target.value);
+    setSelectedPet(selectedPet);
+  };
+  if(!breed){
+    return;
+  }
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Sửa Giống</DialogTitle>
+      <DialogContent>
+      <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+        <TextField
+            margin="dense"
+            label="ID"
+            fullWidth
+            readOnly
+            value={breed.maGiong}
+            {...register("maGiong", { required: true })}
+            error={!!errors.tenLoaiThuCung}
+            helperText={errors.tenLoaiThuCung ? "Tên loài thú cưng là bắt buộc" : ""}
+          />
+          <TextField
+            margin="dense"
+            label="Tên giống mới"
+            fullWidth
+            defaultValue={breed.tengiong}
+            {...register("tengiong", { required: true })}
+            error={!!errors.tengiong}
+            helperText={errors.tengiong ? "Tên giống là bắt buộc" : ""}
+          />
+          <FormControl fullWidth error={error}>
+            <InputLabel id="pet-select-label">Loại thú cưng</InputLabel>
+                  <Select
+                    labelId="pet-select-label"
+                    value={selectedPet ? selectedPet.maLoaiThuCung : ''}
+                    onChange={handlePetSelect}
+                    required
+                  >
+                    {pet.map((i) => (
+                      <MenuItem key={i.maLoaiThuCung} value={i.maLoaiThuCung}>
+                        {i.tenLoaiThuCung}
+                      </MenuItem>
+                    ))}
+                  </Select>
+              {error && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
+          </FormControl>
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Hủy</Button>
+        <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const ConfirmationDialog = ({ open, onClose, onConfirm }) => {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Xác nhận xóa</DialogTitle>
+      <DialogContent>
+        Bạn có chắc chắn muốn xóa giống này không?
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>No</Button>
+        <Button onClick={onConfirm} variant="contained" color="error">Yes</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 
 const ManageAccount = () => {
     const [selectedBreedIndex, setSelectedBreedIndex] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const tableRef = useRef(null);
-  // Assume pets data is available in pets array
-  const breeds = [
-    { maGiong: 1, tengiong: "Husky", loaiThuCung: { maLoaiThuCung: 3, tenLoaiThuCung: "Chó" } },
-    { maGiong: 2, tengiong: "Chihuahua", loaiThuCung: { maLoaiThuCung: 3, tenLoaiThuCung: "Chó" } },
-    { maGiong: 3, tengiong: "Poodle", loaiThuCung: { maLoaiThuCung: 3, tenLoaiThuCung: "Chó" } },
-    { maGiong: 4, tengiong: "Alaska", loaiThuCung: { maLoaiThuCung: 3, tenLoaiThuCung: "Chó" } },
-    { maGiong: 5, tengiong: "Pitbull", loaiThuCung: { maLoaiThuCung: 3, tenLoaiThuCung: "Chó" } },
-    { maGiong: 6, tengiong: "Xiêm", loaiThuCung: { maLoaiThuCung: 2, tenLoaiThuCung: "Mèo" } },
-    { maGiong: 7, tengiong: "Ba tư", loaiThuCung: { maLoaiThuCung: 2, tenLoaiThuCung: "Mèo" } },
-    { maGiong: 8, tengiong: "Anh lông ngắn", loaiThuCung: { maLoaiThuCung: 2, tenLoaiThuCung: "Mèo" } },
-    { maGiong: 9, tengiong: "Anh lông dài", loaiThuCung: { maLoaiThuCung: 2, tenLoaiThuCung: "Mèo" } },
-    { maGiong: 10, tengiong: "Rồng nam mỹ", loaiThuCung: { maLoaiThuCung: 4, tenLoaiThuCung: "Bò sát" } },
-    { maGiong: 11, tengiong: "Rồng úc", loaiThuCung: { maLoaiThuCung: 4, tenLoaiThuCung: "Bò sát" } },
-    { maGiong: 12, tengiong: "Thằn lằn lưỡi xanh", loaiThuCung: { maLoaiThuCung: 4, tenLoaiThuCung: "Bò sát" } },
-    { maGiong: 13, tengiong: "Tắc kè", loaiThuCung: { maLoaiThuCung: 4, tenLoaiThuCung: "Bò sát" } },
-    { maGiong: 14, tengiong: "Hamster", loaiThuCung: { maLoaiThuCung: 5, tenLoaiThuCung: "Chuột" } },
-    { maGiong: 15, tengiong: "Winter white", loaiThuCung: { maLoaiThuCung: 5, tenLoaiThuCung: "Chuột" } },
-    { maGiong: 16, tengiong: "Hamster bear", loaiThuCung: { maLoaiThuCung: 5, tenLoaiThuCung: "Chuột" } },
-    { maGiong: 17, tengiong: "Koi", loaiThuCung: { maLoaiThuCung: 7, tenLoaiThuCung: "Cá" } },
-    { maGiong: 18, tengiong: "Cá vàng", loaiThuCung: { maLoaiThuCung: 7, tenLoaiThuCung: "Cá" } },
-    { maGiong: 19, tengiong: "Cá rồng", loaiThuCung: { maLoaiThuCung: 7, tenLoaiThuCung: "Cá" } },
-    { maGiong: 20, tengiong: "Cá lau kiếng", loaiThuCung: { maLoaiThuCung: 7, tenLoaiThuCung: "Cá" } }
-  ];
-// Hàm xử lý khi chọn một hàng
+    const [breed, setBreed] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
+    const getBreed = async ()=>{
+      try{
+        const res = await AxiosInstance.get("/center/giong")
+        setBreed(res.data)
+      }
+      catch(err){
+        console.error(err);
+      }
+    }
+    const handleConfirmDelete = async (breed) => {
+      try {
+          const res = await AxiosInstance.delete(`/center/giong/${breed.maGiong}`);
+          if (res.status === 200) {
+              enqueueSnackbar('Xóa giống thành công', { variant: 'success', autoHideDuration: 3000 });
+              getBreed();
+          }
+      } catch (err) {
+          enqueueSnackbar('Lỗi khi xóa thú cưng', { variant: 'error', autoHideDuration: 3000 });
+          console.error(err);
+      }
+      setIsConfirmOpen(false);
+      setSelectedBreedIndex(null);
+    };
     const handleRowClick = (index) => {
         if (selectedBreedIndex == index){
             setSelectedBreedIndex(null);
@@ -136,12 +236,8 @@ const ManageAccount = () => {
 
   // Hàm xử lý khi ấn vào nút Delete
   const handleDelete = () => {
-    // Thực hiện hành động delete với thông tin của hàng được chọn
-    if(selectedBreedIndex !== null) {
-      const selectedPet = pets[selectedBreedIndex];
-      // Thực hiện hành động delete với selectedPet
-      console.log("Delete pet:", selectedPet);
-    }
+      setIsConfirmOpen(true)
+    
   };
   const handleDialogOpen = () => {
     setIsDialogOpen(true);
@@ -151,9 +247,20 @@ const ManageAccount = () => {
     setIsDialogOpen(false);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Form Data:", data);
-    // Handle form submission
+  const handleFormSubmit = async(data) => {
+    console.log(data)
+    try{
+      const res = await AxiosInstance.post("/center/giong", data,{ 
+      })
+      if(res.status === 200){
+        enqueueSnackbar('Thêm giống thành công', {variant : 'success', autoHideDuration: 3000} )
+        getBreed()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('Lỗi', {variant : 'error', autoHideDuration: 3000} )
+      console.log(err)
+    }
     handleDialogClose();
   };
   const handleEditDialogOpen = () => {
@@ -164,10 +271,19 @@ const ManageAccount = () => {
     setIsEditOpen(false);
   };
 
-  const handleEditFormSubmit = (data) => {
+  const handleEditFormSubmit = async(data) => {
     console.log("Form Data:", data);
-    // Handle form submission
-    handleDialogClose();
+    try{
+      const res = await AxiosInstance.put("/center/giong", data)
+      if(res.status === 200){
+        enqueueSnackbar(' sửa giống thành công', {variant : 'success', autoHideDuration: 3000} )
+        getBreed()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('lỗi', {variant : 'error', autoHideDuration: 3000} )
+    }
+    handleEditDialogClose();
   };
   const ActionButtons = ({ onEdit, onDelete, isDisabled,onOpenDialog,onOpenEditForm  }) => {
     return (
@@ -178,13 +294,16 @@ const ManageAccount = () => {
       </div>
     );
   };
-
+  useEffect(()=>{
+    getBreed();
+  },[])
   return (
     <>
         <SearchBar/>
         <ActionButtons onEdit={handleEdit} onDelete={handleDelete} onOpenDialog={handleDialogOpen} onOpenEditForm = {handleEditDialogOpen} isDisabled={selectedBreedIndex === null}/>
-        <AddBrandForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
-        <EditPetForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} breed = {breeds[selectedBreedIndex]} />
+        <AddBreedForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
+        <EditBreedForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} breed = {breed[selectedBreedIndex]} />
+        <ConfirmationDialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={()=>handleConfirmDelete(breed[selectedBreedIndex])} />
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }} ref={tableRef}>
                 <Table stickyHeader aria-label="sticky table">
@@ -192,18 +311,20 @@ const ManageAccount = () => {
                     <TableRow>
                         <TableCell>Mã giống</TableCell>
                         <TableCell>Tên giống</TableCell>
-                        <TableCell>loai thú cưng</TableCell>
+                        <TableCell>Mã loại thú cưng</TableCell>
+                        <TableCell>Tên loại thú cưng</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {breeds.map((breed, index) => (
+                    {breed.map((breed, index) => (
                         <TableRow key={index}
                             onClick={() => handleRowClick(index)}
                             sx={{ backgroundColor: selectedBreedIndex === index ? "#f0f0f0" : "inherit" }}
                         >
                             <TableCell>{breed.maGiong}</TableCell>
-                            <TableCell>{breed.tengiong}</TableCell>  
-                            <TableCell>{breed.loaiThuCung.tenLoaiThuCung}</TableCell>             
+                            <TableCell>{breed.tengiong}</TableCell> 
+                            <TableCell>{breed.loaiThuCung.maLoaiThuCung}</TableCell>
+                            <TableCell>{breed.loaiThuCung.tenLoaiThuCung}</TableCell>          
                         </TableRow>
                     ))}
                 </TableBody>

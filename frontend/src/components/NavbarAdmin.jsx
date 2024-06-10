@@ -19,7 +19,8 @@ import PetsIcon from '@mui/icons-material/Pets';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import SpaIcon from '@mui/icons-material/Spa';
-import PercentIcon from '@mui/icons-material/Percent';
+import CategoryIcon from '@mui/icons-material/Category';
+import LogoutIcon from '@mui/icons-material/Logout';
 import {Link, useLocation} from 'react-router-dom';
 const drawerWidth = 240;
 
@@ -115,9 +116,9 @@ export default function NavbarAdmin(props) {
           <List>
         
               <ListItem key={9} disablePadding>
-                <ListItemButton>
+                <ListItemButton component = {Link} to = "/admin/nhaphang" selected={"/admin/nhaphang" === path}>
                   <ListItemIcon>
-                     <InboxIcon /> 
+                     <CategoryIcon /> 
                   </ListItemIcon>
                   <ListItemText primary={"Nhập hàng"} />
                 </ListItemButton>
@@ -135,7 +136,7 @@ export default function NavbarAdmin(props) {
               <ListItem key={11} disablePadding>
                 <ListItemButton>
                   <ListItemIcon>
-                     <InboxIcon /> 
+                     <LogoutIcon /> 
                   </ListItemIcon>
                   <ListItemText primary={"Đăng xuất"} />
                 </ListItemButton>
