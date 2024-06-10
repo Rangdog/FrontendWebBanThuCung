@@ -30,8 +30,8 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
             label="Tên chi nhánh"
             fullWidth
             {...register("tenChiNhanh", { required: true })}
-            error={!!errors.ho}
-            helperText={errors.ho ? "Tên chi nhánh là bắt buộc" : ""}
+            error={!!errors.tenChiNhanh}
+            helperText={errors.tenChiNhanh ? "Tên chi nhánh là bắt buộc" : ""}
           />
           
         </form>

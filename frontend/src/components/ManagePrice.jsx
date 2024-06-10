@@ -487,6 +487,8 @@ const ManageAccount = () => {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [isCapNhapCTOpen, setIsCapNhapCTOpen] = useState(false)
+    const[ctBangGiaSanPham, setCtBangGiaSanPham] = useState([]);
+    const[ctBangGiaThuCung, setCtBangGiaThuCung] = useState([]); 
     const tableRef = useRef(null);
     const [bangGia, setBangGia] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
@@ -499,18 +501,54 @@ const ManageAccount = () => {
         console.error(err);
       }
     }
-    const handleConfirmDelete = async (bangGia) => {
-      console.log(chiNhanh.maChiNhanh)
-      try {
-          const res = await AxiosInstance.delete(`/center/chinhanh/${chiNhanh.maChiNhanh}`);
-          if (res.status === 200) {
-              enqueueSnackbar('Xóa chi nhánh thành công', { variant: 'success', autoHideDuration: 3000 });
-              getChiNhanh();
+    const getCtBangGiaThuCung = async (banggia) =>{
+      try{
+          const res = await  AxiosInstance.get("center/ct-thu-cung")
+          const result = []
+          for(const item of res.data){
+              if(item.maBangGia === banggia.maBangGia){
+                  console.log(item)
+                  result.push(item)
+              }
           }
-      } catch (err) {
-          enqueueSnackbar('Lỗi khi xóa chi nhánh', { variant: 'error', autoHideDuration: 3000 });
-          console.error(err);
+          setCtBangGiaThuCung(result)
       }
+      catch(err){
+        console.error(err)
+      }
+      console.log("sád")
+      }
+      const getCtBangGiaSanPham = async (banggia) =>{
+          try{
+              const res = await  AxiosInstance.get("center/ct-san-pham")
+              const result = []
+              for(const item of res.data){
+                  if(item.maBangGia === banggia.maBangGia){
+                      result.push(item)
+                  }
+              }
+              setCtBangGiaSanPham(result)
+          }
+          catch(err){
+              console.error(err)
+          }
+      }
+    const handleConfirmDelete = async (banggia) => { 
+        if(ctBangGiaThuCung.length === 0 && ctBangGiaSanPham.length === 0){
+          try {
+            const res = await AxiosInstance.delete(`/center/banggia/${banggia.maBangGia}`);
+            if (res.status === 200) {
+                enqueueSnackbar('Xóa bảng giá thành công thành công', { variant: 'success', autoHideDuration: 3000 });
+                getBangGia();
+            }
+          } catch (err) {
+              enqueueSnackbar('Lỗi khi xóa bảng giá', { variant: 'error', autoHideDuration: 3000 });
+              console.error(err);
+          }
+        }
+        else{
+          enqueueSnackbar('Bảng giá này có chi tiết bản giá', { variant: 'error', autoHideDuration: 3000 });
+        }
       setIsConfirmOpen(false);
       setSelectedPriceIndex(null);
     };
@@ -649,6 +687,10 @@ const ManageAccount = () => {
   useEffect(()=>{
     getBangGia();
   },[])
+  useEffect(() => {
+    getCtBangGiaThuCung(bangGia[selectedPriceIndex]);
+    getCtBangGiaSanPham(bangGia[selectedPriceIndex]);
+  }, [bangGia[selectedPriceIndex]]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

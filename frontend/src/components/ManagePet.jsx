@@ -1,7 +1,8 @@
 import React,{ useState, useEffect, useRef} from 'react';
 import { useForm } from 'react-hook-form';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableHead, TableBody, TableCell, TableRow, TableContainer, Paper } from '@mui/material';
-
+import AxiosInstance from './AxiosInstante';
+import { useSnackbar } from 'notistack';
 
 const SearchBar = () => {
   return (
@@ -12,7 +13,7 @@ const SearchBar = () => {
   );
 };
 
-const AddBrandForm = ({ open, onClose, onSubmit }) => {
+const AddPetForm = ({ open, onClose, onSubmit }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const handleFormSubmit = (data) => {
@@ -21,16 +22,16 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Thêm loài thứ cưng mới</DialogTitle>
+      <DialogTitle>Thêm loài thú cưng mới</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
           <TextField
             margin="dense"
-            label="Tên loại thú cưng"
+            label="Tên loài thú cưng"
             fullWidth
             {...register("tenLoaiThuCung", { required: true })}
-            error={!!errors.ho}
-            helperText={errors.ho ? "Tên loại thú cưng là bắt buộc" : ""}
+            error={!!errors.tenLoaiThuCung}
+            helperText={errors.tenLoaiThuCung ? "Tên loài thú cưng là bắt buộc" : ""}
           />
           
         </form>
@@ -44,53 +45,113 @@ const AddBrandForm = ({ open, onClose, onSubmit }) => {
 };
 
 const EditPetForm = ({ open, onClose, onSubmit, pet }) => {
-    if(!pet){
-        return null;
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
+
+  useEffect(() => {
+    if (pet) {
+      setValue('tenLoaiThuCung', pet.tenLoaiThuCung);
+      setValue('maLoaiThuCung', pet.maLoaiThuCung);
     }
-    const { register, handleSubmit, formState: { errors } } = useForm();
-  
-    const handleFormSubmit = (data) => {
-      onSubmit(data);
-    };
-  
-    return (
-      <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Sửa loài thú cưng</DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-            <TextField
-              margin="dense"
-              label="Tên loại thú cưng"
-              value={pet.tenLoaiThuCung}
-              fullWidth
-              {...register("tenLoaiThuCung", { required: true })}
-              error={!!errors.ho}
-              helperText={errors.ho ? "Tên loại thú cưng là bắt buộc" : ""}
-            />
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Hủy</Button>
-          <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
-        </DialogActions>
-      </Dialog>
-    );
+  }, [pet, setValue]);
+
+  const handleFormSubmit = (data) => {
+    onSubmit(data);
   };
+
+  if (!pet) {
+    return null;
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Sửa chi nhánh</DialogTitle>
+      <DialogContent>
+        <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+          <TextField
+            margin="dense"
+            label="ID"
+            value={pet.maLoaiThuCung}
+            fullWidth
+            InputProps={{
+              readOnly: true,
+            }}
+            {...register('maLoaiThuCung', { required: true })}
+            error={!!errors.maChiNhanh}
+            helperText={errors.maChiNhanh ? "Mã loại thú cưng là bắt buộc" : ""}
+          />
+          <TextField
+            margin="dense"
+            label="Tên loại thú cưng"
+            defaultValue={pet.tenLoaiThuCung}
+            fullWidth
+            error={!!errors.tenLoaiThuCung}
+            helperText={errors.tenLoaiThuCung ? "Tên loại thú cưng là bắt buộc" : ""}
+            {...register('tenLoaiThuCung', { required: true })}
+          />
+        </form>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Hủy</Button>
+        <Button onClick={handleSubmit(handleFormSubmit)} variant="contained">Sửa</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const ConfirmationDialog = ({ open, onClose, onConfirm }) => {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Xác nhận xóa</DialogTitle>
+      <DialogContent>
+        Bạn có chắc chắn muốn xóa chi nhánh này không?
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>No</Button>
+        <Button onClick={onConfirm} variant="contained" color="error">Yes</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 
 const ManageAccount = () => {
     const [selectedPetIndex, setSelectedPetIndex] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const tableRef = useRef(null);
+    const [pet, setPet] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
+    const getPet = async ()=>{
+      try{
+        const res = await AxiosInstance.get("/center/loaithucung")
+        setPet(res.data)
+      }
+      catch(err){
+        console.error(err);
+      }
+    }
   // Assume pets data is available in pets array
-  const pet = [
-    {maLoaiThuCung: 2, tenLoaiThuCung: "Mèo"},
-    {maLoaiThuCung: 3, tenLoaiThuCung: "Chó"},
-    {maLoaiThuCung: 4, tenLoaiThuCung: "Bò sát"},
-    {maLoaiThuCung: 5, tenLoaiThuCung: "Chuột"},
-    {maLoaiThuCung: 7, tenLoaiThuCung: "Cá"},
-  ]
+  // const chiNhanh = [
+  //   {maChiNhanh: 1, tenChiNhanh: "Man thiện"},
+  //   {maChiNhanh: 2, tenChiNhanh: "Trần Thị Hoa"}
+  // ]
 // Hàm xử lý khi chọn một hàng
+    const handleConfirmDelete = async (chiNhanh) => {
+      console.log(chiNhanh.maChiNhanh)
+      try {
+          const res = await AxiosInstance.delete(`/center/chinhanh/${chiNhanh.maChiNhanh}`);
+          if (res.status === 200) {
+              enqueueSnackbar('Xóa chi nhánh thành công', { variant: 'success', autoHideDuration: 3000 });
+              getChiNhanh();
+          }
+      } catch (err) {
+          enqueueSnackbar('Lỗi khi xóa chi nhánh', { variant: 'error', autoHideDuration: 3000 });
+          console.error(err);
+      }
+      setIsConfirmOpen(false);
+      setSelectedPetIndex(null);
+    };
     const handleRowClick = (index) => {
         if (selectedPetIndex == index){
             setSelectedPetIndex(null);
@@ -112,12 +173,8 @@ const ManageAccount = () => {
 
   // Hàm xử lý khi ấn vào nút Delete
   const handleDelete = () => {
-    // Thực hiện hành động delete với thông tin của hàng được chọn
-    if(selectedPetIndex !== null) {
-      const selectedPet = pets[selectedPetIndex];
-      // Thực hiện hành động delete với selectedPet
-      console.log("Delete pet:", selectedPet);
-    }
+      setIsConfirmOpen(true)
+    
   };
   const handleDialogOpen = () => {
     setIsDialogOpen(true);
@@ -127,9 +184,23 @@ const ManageAccount = () => {
     setIsDialogOpen(false);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Form Data:", data);
-    // Handle form submission
+  const handleFormSubmit = async(data) => {
+    const tenLoaiThuCung = data.tenLoaiThuCung.replace("\"","");
+    try{
+      const res = await AxiosInstance.post("/center/loaithucung", tenLoaiThuCung,{
+        headers:{
+          'Content-Type':'text/plain'
+        }
+      })
+      if(res.status === 200){
+        enqueueSnackbar('Thêm loài thú cưng thành công', {variant : 'success', autoHideDuration: 3000} )
+        getPet()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('Lỗi', {variant : 'error', autoHideDuration: 3000} )
+      console.log(err)
+    }
     handleDialogClose();
   };
   const handleEditDialogOpen = () => {
@@ -140,10 +211,19 @@ const ManageAccount = () => {
     setIsEditOpen(false);
   };
 
-  const handleEditFormSubmit = (data) => {
+  const handleEditFormSubmit = async(data) => {
     console.log("Form Data:", data);
-    // Handle form submission
-    handleDialogClose();
+    try{
+      const res = await AxiosInstance.put("/center/loaithucung", data)
+      if(res.status === 200){
+        enqueueSnackbar(' sửa loại thú cưng thành công', {variant : 'success', autoHideDuration: 3000} )
+        getPet()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('lỗi', {variant : 'success', autoHideDuration: 3000} )
+    }
+    handleEditDialogClose();
   };
   const ActionButtons = ({ onEdit, onDelete, isDisabled,onOpenDialog,onOpenEditForm  }) => {
     return (
@@ -154,20 +234,23 @@ const ManageAccount = () => {
       </div>
     );
   };
-
+  useEffect(()=>{
+    getPet();
+  },[])
   return (
     <>
         <SearchBar/>
         <ActionButtons onEdit={handleEdit} onDelete={handleDelete} onOpenDialog={handleDialogOpen} onOpenEditForm = {handleEditDialogOpen} isDisabled={selectedPetIndex === null}/>
-        <AddBrandForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
+        <AddPetForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
         <EditPetForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} pet = {pet[selectedPetIndex]} />
+        <ConfirmationDialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={()=>handleConfirmDelete(pet[selectedPetIndex])} />
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }} ref={tableRef}>
                 <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>Mã loài thú cưng</TableCell>
-                        <TableCell>Tên loài thú cưng</TableCell>
+                        <TableCell>Mã loại thú cưng</TableCell>
+                        <TableCell>Tên loại thú cưng</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
