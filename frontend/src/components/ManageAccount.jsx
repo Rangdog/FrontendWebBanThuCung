@@ -221,12 +221,38 @@ const ManageAccount = () => {
     // Handle form submission
     handleDialogClose();
   };
+  const handleUnlockAcc = async() =>{
+    if(selectedAccountIndex !== null) {
+      const selectedAccount = account[selectedAccountIndex];
+      try {
+        const res = await AxiosInstance.put("/identity/tk", {
+            tenDangNhap: selectedAccount.tenDangNhap,
+            matKhau:selectedAccount.matKhau,
+            trangThai: true
+        });
+        console.log(res.data);
+        enqueueSnackbar('Mở tài khoản thành công', {
+          variant: 'success',
+          autoHideDuration: 3000, // Set thời gian hiển thị là 3 giây
+        });
+        getAccount();
+        setAccount((prevAccounts) =>
+            prevAccounts.map((acc, index) =>
+                index === selectedAccountIndex ? res.data : acc
+            )
+        );
+    } catch (error) {
+        console.error('Error updating account status:', error);
+    }
+    }
+  }
   const ActionButtons = ({ onEdit, onDelete, isDisabled,onOpenDialog  }) => {
     return (
       <div>
-        <Button variant="contained" color="primary" style={{marginRight: '10px'}} onClick={onOpenDialog}>Đăng ký tài khoản</Button>
+        <Button variant="contained" color="success" style={{marginRight: '10px'}} onClick={onOpenDialog}>Đăng ký tài khoản</Button>
         <Button variant="contained" color="primary" style={{marginRight: '10px'}} onClick={onEdit} disabled={isDisabled}>Reset mật khẩu</Button>
-        <Button variant="contained" color="secondary" onClick={onDelete} disabled={isDisabled}>Khóa tài khoản</Button>
+        <Button variant="contained" color="secondary" style={{marginRight: '10px'}} onClick={handleUnlockAcc} disabled={isDisabled}>Mở tài khoản</Button>
+        <Button variant="contained" color="error" onClick={onDelete} disabled={isDisabled}>Khóa tài khoản</Button>
       </div>
     );
   };

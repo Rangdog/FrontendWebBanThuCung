@@ -12,6 +12,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Pagination,
+  Divider,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import AxiosInstance from "./AxiosInstante";
@@ -23,34 +25,10 @@ const Home = () => {
   const [selectedBranch, setSelectedBranch] = useState("");
   const [branches, setBranches] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [filterePets, setFilteredPets] = useState([]);
-
-  const addToCartPets = async (id) => {
-    try {
-      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
-        maKhachHang: maKhachHang,
-        maThuCung: id,
-      });
-      alert("Đã thêm thú cưng vào giỏ hàng!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
-    }
-  };
-
-  const addToCartProducts = async (id) => {
-    try {
-      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
-        maKhachHang: maKhachHang,
-        maSanPham: id,
-        maChiNhanh: selectedBranch,
-      });
-      alert("Đã thêm sản phẩm vào giỏ hàng!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
-    }
-  };
+  const [filteredPets, setFilteredPets] = useState([]);
+  const [pageProduct, setPageProduct] = useState(1); // Product pagination page
+  const [pagePet, setPagePet] = useState(1); // Pet pagination page
+  const itemsPerPage = 8; // Number of items per page
 
   useEffect(() => {
     const maKhachHang = localStorage.getItem("tenDangNhap");
@@ -63,7 +41,6 @@ const Home = () => {
     const fetchBranches = async () => {
       try {
         const response = await AxiosInstance.get("/center/chinhanh");
-        console.log("Branches Data:", response.data);
         setBranches(response.data);
         if (response.data.length > 0) {
           setSelectedBranch(response.data[0].maChiNhanh);
@@ -80,7 +57,6 @@ const Home = () => {
     const fetchProducts = async () => {
       try {
         const response = await AxiosInstance.get("/center/ct-san-pham");
-        console.log("Products Data:", response.data);
         setProducts(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -90,7 +66,6 @@ const Home = () => {
     const fetchPets = async () => {
       try {
         const response = await AxiosInstance.get("/center/ct-thu-cung");
-        console.log("Pets Data:", response.data);
         setPets(response.data);
       } catch (error) {
         console.error("Error fetching pets:", error);
@@ -103,21 +78,64 @@ const Home = () => {
 
   useEffect(() => {
     if (selectedBranch !== null) {
-      // Filter products based on selected branch
-      const filtered1 = products.filter(
+      // Filter products and pets based on selected branch
+      const filteredProducts = products.filter(
         (product) => product.maChiNhanh === parseInt(selectedBranch)
       );
-      setFilteredProducts(filtered1);
+      setFilteredProducts(filteredProducts);
 
-      const filtered2 = pets.filter(
-        (pets) => pets.maChiNhanh === parseInt(selectedBranch)
+      const filteredPets = pets.filter(
+        (pet) => pet.maChiNhanh === parseInt(selectedBranch)
       );
-      setFilteredPets(filtered2);
+      setFilteredPets(filteredPets);
     }
   }, [selectedBranch, products, pets]);
 
   const handleBranchChange = (event) => {
     setSelectedBranch(event.target.value);
+  };
+
+  const handleProductPageChange = (event, value) => {
+    setPageProduct(value);
+  };
+
+  const handlePetPageChange = (event, value) => {
+    setPagePet(value);
+  };
+
+  const indexOfLastProduct = pageProduct * itemsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const indexOfLastPet = pagePet * itemsPerPage;
+  const indexOfFirstPet = indexOfLastPet - itemsPerPage;
+  const currentPets = filteredPets.slice(indexOfFirstPet, indexOfLastPet);
+
+  const addToCartProducts = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
+        maKhachHang: maKhachHang,
+        maSanPham: id,
+        maChiNhanh: selectedBranch,
+      });
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      alert("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng!");
+    }
+  };
+
+  const addToCartPets = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
+        maKhachHang: maKhachHang,
+        maThuCung: id,
+      });
+      alert("Đã thêm thú cưng vào giỏ hàng!");
+    } catch (error) {
+      console.error("Error adding pet to cart:", error);
+      alert("Có lỗi xảy ra khi thêm thú cưng vào giỏ hàng!");
+    }
   };
 
   return (
@@ -138,12 +156,12 @@ const Home = () => {
           ))}
         </Select>
       </FormControl>
+
       <Typography variant="h5" component="h2" gutterBottom>
         Sản Phẩm
       </Typography>
-      <Grid container spacing={3} paddingTop={1}>
-        {filteredProducts.map((product) => (
-          <Grid item xs={12} sm={6} md={3} key={product.maSanPham}>
+        <Grid container spacing={3} paddingTop={1}>
+          {currentProducts.map((product,index) => <Grid item xs={12} sm={6} md={3} key={index}>
             <Card
               sx={{ display: "flex", flexDirection: "column", height: "100%" }}
             >
@@ -200,15 +218,23 @@ const Home = () => {
               </Box>
             </Card>
           </Grid>
-        ))}
+        )}
       </Grid>
-
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+        <Pagination
+          count={Math.ceil(filteredProducts.length / itemsPerPage)}
+          page={pageProduct}
+          onChange={handleProductPageChange}
+          color="primary"
+        />
+      </Box>
+      <Divider/>
       <Typography variant="h5" component="h2" gutterBottom marginTop={4}>
         Thú Cưng
       </Typography>
       <Grid container spacing={3} paddingTop={1}>
-        {filterePets.map((pet) => (
-          <Grid item xs={12} sm={6} md={3} key={pet.maThuCung}>
+        {currentPets.map((pet,index) => (
+          <Grid item xs={12} sm={6} md={3} key={index}>
             <Card
               sx={{ display: "flex", flexDirection: "column", height: "100%" }}
             >
@@ -267,8 +293,18 @@ const Home = () => {
           </Grid>
         ))}
       </Grid>
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+        <Pagination
+          count={Math.ceil(filteredPets.length / itemsPerPage)}
+          page={pagePet}
+          onChange={handlePetPageChange}
+          color="primary"
+        />
+      </Box>
     </Container>
   );
 };
 
 export default Home;
+
+            

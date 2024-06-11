@@ -14,8 +14,11 @@ import ManageBranch from "./components/ManageBranch";
 import ManageType from "./components/ManageType";
 import ManagePet from "./components/ManagePet";
 import ManageBreeds from "./components/ManageBreeds";
+import ManagePrice from "./components/ManagePrice";
+import ImportProduct from "./components/ImportProduct";
 import ChangePassword from "./components/Customer/ChangePassword";
 import CustomerProfile from "./components/Customer/CustomerProfile";
+import ManageThuCung from "./components/ManageThuCung";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
@@ -67,6 +70,10 @@ function App() {
             element={<NavbarAdmin content={<ManageBranch />} />}
           />
           <Route
+            path="/admin/thucung"
+            element={<NavbarAdmin content={<ManageThuCung />} />}
+          />
+          <Route
             path="/admin/loaisp"
             element={<NavbarAdmin content={<ManageType />} />}
           />
@@ -77,6 +84,14 @@ function App() {
           <Route
             path="/admin/giong"
             element={<NavbarAdmin content={<ManageBreeds />} />}
+          />
+          <Route
+            path="/admin/banggia"
+            element={<NavbarAdmin content={<ManagePrice />} />}
+          />
+          <Route
+            path="/admin/nhaphang"
+            element={<NavbarAdmin content={<ImportProduct />} />}
           />
         </Routes>
       </div>

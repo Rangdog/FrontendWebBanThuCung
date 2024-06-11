@@ -673,13 +673,27 @@ const ManageAccount = () => {
       }
     // handleEditDialogClose();
   };
-
+  const handleApply= async()=>{
+    const banggia = bangGia[selectedPriceIndex]
+    try{
+      const res = await AxiosInstance.get(`/center/banggia/apply/${banggia.maBangGia}`)
+      if(res.status === 200){
+        enqueueSnackbar('Apply bảng giá thú cưng thành công', {variant : 'success', autoHideDuration: 3000} )
+        getBangGia()
+      }
+    }
+    catch(err){
+      enqueueSnackbar('có lỗi trong việc apply bảng giá', {variant : 'error', autoHideDuration: 3000} )
+      console.log(err)
+    }
+  }
   const ActionButtons = ({ onEdit, onDelete, isDisabled,onOpenDialog,onOpenEditForm  }) => {
     return (
       <div>
-        <Button variant="contained" color="primary" style={{marginRight: '10px'}} onClick={onOpenDialog}>Thêm</Button>
+        <Button variant="contained" color="success" style={{marginRight: '10px'}} onClick={onOpenDialog}>Thêm</Button>
         <Button variant="contained" color="primary" style={{marginRight: '10px'}} onClick={onOpenEditForm} disabled={isDisabled}>Sửa</Button>
         <Button variant="contained" color="primary" style={{marginRight: '10px'}} onClick={handleCapNhapDialogOpen} disabled={isDisabled}>Cập nhập chi tiết bảng giá</Button>
+        <Button variant="contained" color="primary" style={{marginRight: '10px'}}  onClick={handleApply} disabled={isDisabled}>Apply</Button>
         <Button variant="contained" color="error" onClick={onDelete} disabled={isDisabled}>Xóa</Button>
       </div>
     );
