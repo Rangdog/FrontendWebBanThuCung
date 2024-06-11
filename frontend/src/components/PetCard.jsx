@@ -1,27 +1,34 @@
-import {React, useEffect, useMemo, useState} from 'react'
-import { Card, CardContent, CardMedia, Typography, Button, Snackbar } from '@mui/material';
-import AxiosInstance from './AxiosInstante';
-import { PrintTwoTone } from '@mui/icons-material';
+import { React, useEffect, useMemo, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  Snackbar,
+} from "@mui/material";
+import AxiosInstance from "./AxiosInstante";
+import { PrintTwoTone } from "@mui/icons-material";
 
 const PetCard = ({ pet, hinhAnh }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [image, setImage] = useState()
+  const [image, setImage] = useState();
   const fetchImages = async (ids) => {
     try {
-      const response = await AxiosInstance.post('/center/image/get', [ids], {
+      const response = await AxiosInstance.post("/center/image/get", [ids], {
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        responseType: 'arraybuffer', // Ensure the response is treated as binary data
+        responseType: "arraybuffer", // Ensure the response is treated as binary data
       });
-      
+
       // Convert the binary data to a base64 string
       const base64String = btoa(
         String.fromCharCode(...new Uint8Array(response.data))
       );
       return `data:image/jpeg;base64,${base64String}`;
     } catch (error) {
-      console.error('Error fetching images:', error);
+      console.error("Error fetching images:", error);
       return null;
     }
   };
@@ -29,7 +36,7 @@ const PetCard = ({ pet, hinhAnh }) => {
     if (hinhAnh && hinhAnh.length > 0) {
       const loadImages = async () => {
         const fetchedImages = await fetchImages(8);
-        console.log(fetchedImages)
+        console.log(fetchedImages);
         setImage(fetchedImages);
       };
 
@@ -46,7 +53,7 @@ const PetCard = ({ pet, hinhAnh }) => {
   };
   return (
     <>
-      <Card sx={{ maxWidth: 345, margin: '16px', textAlign: 'center'}}>
+      <Card sx={{ maxWidth: 345, margin: "16px", textAlign: "center" }}>
         <CardMedia
           component="img"
           height="140"
@@ -67,7 +74,9 @@ const PetCard = ({ pet, hinhAnh }) => {
             {pet.giaKhuyenMai}
           </Typography>
         </CardContent>
-        <Button variant="contained" onClick={handleBuyClick}>Thêm vào giỏ hàng</Button>
+        <Button variant="contained" onClick={handleBuyClick}>
+          Thêm vào giỏ hàng
+        </Button>
       </Card>
       <Snackbar
         open={openSnackbar}
