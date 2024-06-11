@@ -38,9 +38,10 @@ function App() {
         {" "}
         {/* Chỗ này là đặt padding-top để tránh bị che bởi Navbar */}
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           {/* <Route path="/" element={<Order />} /> */}
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<Order />} />

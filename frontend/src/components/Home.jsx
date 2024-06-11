@@ -16,7 +16,8 @@ import {
 import { Link } from "react-router-dom";
 import AxiosInstance from "./AxiosInstante";
 
-const Home = (product) => {
+const Home = () => {
+  const [maKhachHang, setMaKhachHang] = useState("");
   const [products, setProducts] = useState([]);
   const [pets, setPets] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
@@ -24,29 +25,39 @@ const Home = (product) => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filterePets, setFilteredPets] = useState([]);
 
-  const addToCart = async () => {
+  const addToCartPets = async (id) => {
     try {
-      if (product.type === "thucung") {
-        // Nếu là thú cưng
-        await AxiosInstance.post("/center/them-thu-cung", {
-          maKhachHang: "your_customer_id",
-          maThuCung: product.maThuCung,
-        });
-        alert("Đã thêm thú cưng vào giỏ hàng!");
-      } else {
-        // Nếu là sản phẩm
-        await AxiosInstance.post("/center/them-san-pham", {
-          maKhachHang: "your_customer_id",
-          maSanPham: product.maSanPham,
-          maChiNhanh: "selected_branch_id",
-        });
-        alert("Đã thêm sản phẩm vào giỏ hàng!");
-      }
+      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
+        maKhachHang: maKhachHang,
+        maThuCung: id,
+      });
+      alert("Đã thêm thú cưng vào giỏ hàng!");
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
     }
   };
+
+  const addToCartProducts = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
+        maKhachHang: maKhachHang,
+        maSanPham: id,
+        maChiNhanh: selectedBranch,
+      });
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
+    }
+  };
+
+  useEffect(() => {
+    const maKhachHang = localStorage.getItem("tenDangNhap");
+    if (maKhachHang) {
+      setMaKhachHang(maKhachHang);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -127,7 +138,6 @@ const Home = (product) => {
           ))}
         </Select>
       </FormControl>
-
       <Typography variant="h5" component="h2" gutterBottom>
         Sản Phẩm
       </Typography>
@@ -174,10 +184,17 @@ const Home = (product) => {
                       </Typography>
                     )}
                   </Box>
+
+                  <Typography variant="body2" color="text.primary">
+                    Số lượng tồn: {product.soLuongTon}
+                  </Typography>
                 </CardContent>
               </Link>
               <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                <Button size="small" onClick={addToCart}>
+                <Button
+                  size="small"
+                  onClick={() => addToCartProducts(product.maSanPham)}
+                >
                   Thêm vào giỏ hàng
                 </Button>
               </Box>
@@ -232,10 +249,17 @@ const Home = (product) => {
                       </Typography>
                     )}
                   </Box>
+
+                  <Typography variant="body2" color="text.primary">
+                    Số lượng tồn: {pet.soLuongTon}
+                  </Typography>
                 </CardContent>
               </Link>
               <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                <Button size="small" onClick={addToCart}>
+                <Button
+                  size="small"
+                  onClick={() => addToCartPets(pet.maThuCung)}
+                >
                   Thêm vào giỏ hàng
                 </Button>
               </Box>

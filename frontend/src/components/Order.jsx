@@ -8,14 +8,15 @@ import {
   CircularProgress,
   Box,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
   Autocomplete,
 } from "@mui/material";
 import axios from "axios";
+import AxiosInstance from "./AxiosInstante";
 
 const Order = () => {
   const [provinces, setProvinces] = useState([]);
@@ -25,30 +26,83 @@ const Order = () => {
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedWard, setSelectedWard] = useState(null);
+  const [specificAddress, setSpecificAddress] = useState("");
 
   const [loadingProvinces, setLoadingProvinces] = useState(true);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      image: "path/to/image1",
-      name: "Sản phẩm 1",
-      type: "Loại 1",
-      price: 50000,
-      quantity: 2,
-    },
-    {
-      id: 2,
-      image: "path/to/image2",
-      name: "Sản phẩm 2",
-      type: "Loại 2",
-      price: 30000,
-      quantity: 1,
-    },
-    // Thêm các sản phẩm khác nếu cần
-  ]);
+  const [cartProducts, setCartProducts] = useState([]);
+  const [cartPets, setCartPets] = useState([]);
+
+  const [productQuantities, setProductQuantities] = useState({});
+  const [petQuantities, setPetQuantities] = useState({});
+
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [maKhachHang, setMaKhachHang] = useState("");
+
+  useEffect(() => {
+    const maChiNhanh = localStorage.getItem("maChiNhanh");
+    const maKhachHang = localStorage.getItem("tenDangNhap");
+    console.log(maChiNhanh);
+    console.log(maKhachHang);
+    if (maChiNhanh) {
+      setSelectedBranch(maChiNhanh);
+    }
+    if (maKhachHang) {
+      setMaKhachHang(maKhachHang);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      if (maKhachHang && selectedBranch) {
+        try {
+          const responseProducts = await AxiosInstance.post(
+            "/center/gio-hang/san-pham",
+            {
+              maKhachHang: maKhachHang,
+              maChiNhanh: selectedBranch,
+            }
+          );
+
+          const responsePets = await AxiosInstance.post(
+            "/center/gio-hang/thu-cung",
+            {
+              maKhachHang: maKhachHang,
+              maChiNhanh: selectedBranch,
+            }
+          );
+          setCartPets(responsePets.data);
+          setCartProducts(responseProducts.data);
+
+          // Initialize quantities for products and pets
+          const initialProductQuantities = responseProducts.data.reduce(
+            (acc, item) => {
+              acc[item.maSanPham] = 1;
+              return acc;
+            },
+            {}
+          );
+
+          const initialPetQuantities = responsePets.data.reduce((acc, item) => {
+            acc[item.maThuCung] = 1;
+            return acc;
+          }, {});
+
+          setProductQuantities(initialProductQuantities);
+          setPetQuantities(initialPetQuantities);
+          console.log(responseProducts.data);
+          console.log(responsePets.data);
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
+      }
+    };
+
+    fetchCartItems();
+  }, [maKhachHang, selectedBranch]);
 
   useEffect(() => {
     axios
@@ -102,10 +156,83 @@ const Order = () => {
   }, [selectedDistrict]);
 
   const calculateTotal = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
+    let productTotal = 0;
+    let petTotal = 0;
+
+    // Tính tổng sản phẩm
+    cartProducts.forEach((item) => {
+      const quantity = Number(productQuantities[item.maSanPham]) || 0;
+      const price = item.giaKM ? Number(item.giaKM) : Number(item.giaHienTai);
+      productTotal += price * quantity;
+    });
+
+    // Tính tổng thú cưng
+    cartPets.forEach((item) => {
+      const quantity = Number(petQuantities[item.maThuCung]) || 0;
+      const price = item.giaKM ? Number(item.giaKM) : Number(item.giaHienTai);
+      petTotal += price * quantity;
+    });
+    console.log(productTotal);
+
+    // Tổng cả sản phẩm và thú cưng
+    return productTotal + petTotal;
+  };
+
+  const handleQuantityChange = (type, id, value) => {
+    if (type === "product") {
+      setProductQuantities((prev) => ({
+        ...prev,
+        [id]: value,
+      }));
+    } else {
+      setPetQuantities((prev) => ({
+        ...prev,
+        [id]: value,
+      }));
+    }
+  };
+
+  const placeOrder = async () => {
+    try {
+      const orderInfoData = {
+        diaChi: specificAddress,
+        soDienThoai: phoneNumber,
+        maChiNhanh: selectedBranch,
+        maKhachhang: maKhachHang,
+      };
+      console.log(orderInfoData);
+
+      const orderResponse = await AxiosInstance.post(
+        "/order/don-dat",
+        orderInfoData
+      );
+      const maDonDat = orderResponse.data.soDonDat;
+      // Tạo danh sách các sản phẩm từ cartProducts
+
+      const orderProducts = cartProducts.map((product) => ({
+        maDonDat: maDonDat,
+        soLuong: productQuantities[product.maSanPham] || 1,
+        donGia: product.giaKM ? product.giaKM : product.giaHienTai,
+        maSanPham: product.maSanPham,
+        maChiNhanh: selectedBranch,
+      }));
+
+      await AxiosInstance.post("/order/dat-hang/sp", orderProducts);
+
+      const orderPets = cartPets.map((pet) => ({
+        maDonDat: maDonDat,
+        soLuong: petQuantities[pet.maThuCung] || 1,
+        donGia: pet.giaKM ? pet.giaKM : pet.giaHienTai,
+        maThuCung: pet.maThuCung,
+      }));
+
+      console.log(orderPets);
+      await AxiosInstance.post("/order/dat-hang/tc", orderPets);
+      alert("Đã đặt hàng thành công!");
+    } catch (error) {
+      console.error("Đặt hàng thất bại:", error.message);
+      // Hiển thị thông báo lỗi cho người dùng
+    }
   };
 
   return (
@@ -113,12 +240,18 @@ const Order = () => {
       <Typography variant="h4" gutterBottom marginTop={2}>
         Xác nhận đơn hàng
       </Typography>
-      <Grid container spacing={2}>
+      <Grid container spacing={1}>
         <Grid item xs={6}>
           <Paper elevation={3} style={{ padding: "20px" }}>
             <Typography variant="h6">Thông tin giao hàng:</Typography>
             <TextField fullWidth label="Họ và tên" margin="normal" />
-            <TextField fullWidth label="Số điện thoại" margin="normal" />
+            <TextField
+              fullWidth
+              label="Số điện thoại"
+              margin="normal"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
             <Box display="flex" marginBottom="16px">
               <Autocomplete
                 options={provinces}
@@ -211,7 +344,13 @@ const Order = () => {
                 )}
               />
             </Box>
-            <TextField fullWidth label="Địa chỉ cụ thể" margin="normal" />
+            <TextField
+              fullWidth
+              label="Địa chỉ cụ thể"
+              margin="normal"
+              value={specificAddress}
+              onChange={(e) => setSpecificAddress(e.target.value)}
+            />
             <Typography variant="h6">Phương thức thanh toán</Typography>
             <Typography>Thanh toán khi nhận hàng</Typography>
           </Paper>
@@ -220,76 +359,151 @@ const Order = () => {
           <Paper
             elevation={3}
             style={{
-              padding: "20px",
-              maxHeight: "400px",
+              maxHeight: "300px",
               display: "flex",
               flexDirection: "column",
             }}
           >
-            <Typography variant="h6">Sản phẩm đã chọn</Typography>
+            <Typography variant="h6" margin={2}>
+              Thông tin sản phẩm:
+            </Typography>
             <Box
               style={{ flexGrow: 1, overflow: "auto", marginBottom: "10px" }}
             >
-              <List>
-                {cartItems.map((item) => (
-                  <ListItem key={item.id} alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar
-                        src={item.image}
-                        variant="square"
-                        style={{ width: 80, height: 80 }}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle1" marginLeft={2}>
-                          {item.name}
-                        </Typography>
-                      }
-                      secondary={
-                        <>
-                          <Typography
-                            variant="body2"
-                            color="textSecondary"
-                            marginLeft={2}
-                          >
-                            Loại: {item.type}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            color="textSecondary"
-                            marginLeft={2}
-                          >
-                            Đơn giá: {item.price.toLocaleString()}đ
-                          </Typography>
-                        </>
-                      }
-                    />
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      padding={3}
-                    >
-                      Số lượng: {`x${item.quantity}`}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      padding={3}
-                    >
-                      Thành tiền:{" "}
-                      {`${(item.price * item.quantity).toLocaleString()}đ`}
-                    </Typography>
-                  </ListItem>
-                ))}
-              </List>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{ width: "60%" }}>Sản phẩm</TableCell>
+                    <TableCell style={{ width: "20%" }}>Số lượng</TableCell>
+                    <TableCell style={{ width: "20%" }}>Thành tiền</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cartProducts.map((item) => (
+                    <TableRow key={item.maSanPham}>
+                      <TableCell>
+                        <Grid container>
+                          <Grid item xs={4}>
+                            <img
+                              src={item.hinhAnh}
+                              alt={item.tenSanPham}
+                              style={{ width: 50, height: 50 }}
+                            />
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Typography variant="body2">
+                              {item.tenSanPham}
+                            </Typography>
+                            <Typography variant="body2">
+                              {" "}
+                              {item.giaKM ? item.giaKM : item.giaHienTai}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </TableCell>
+                      <TableCell>
+                        {" "}
+                        <TextField
+                          type="number"
+                          value={productQuantities[item.maSanPham] || 1}
+                          onChange={(e) =>
+                            handleQuantityChange(
+                              "product",
+                              item.maSanPham,
+                              parseInt(e.target.value)
+                            )
+                          }
+                          inputProps={{ min: 1 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {(item.giaKM ? item.giaKM : item.giaHienTai) *
+                          (productQuantities[item.maSanPham] || 1)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </Box>
-            <Box style={{ borderTop: "1px solid #ddd", paddingTop: "10px" }}>
+          </Paper>
+          <Paper
+            elevation={3}
+            style={{
+              maxHeight: "300px",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Box
+              style={{ flexGrow: 1, overflow: "auto", marginBottom: "10px" }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{ width: "60%" }}>Thú cưng</TableCell>
+                    <TableCell style={{ width: "20%" }}>Số lượng</TableCell>
+                    <TableCell style={{ width: "20%" }}>Thành tiền</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {cartPets.map((item) => (
+                    <TableRow key={item.maSanPham}>
+                      <TableCell>
+                        <Grid container>
+                          <Grid item xs={4}>
+                            <img
+                              src={item.hinhAnh}
+                              alt={item.tenThuCung}
+                              style={{ width: 50, height: 50 }}
+                            />
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Typography variant="body2">
+                              {item.tenThuCung}
+                            </Typography>
+                            <Typography variant="body2">
+                              {" "}
+                              {item.giaKM ? item.giaKM : item.giaHienTai}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </TableCell>
+                      <TableCell>
+                        {" "}
+                        <TextField
+                          type="number"
+                          value={petQuantities[item.maThuCung] || 1}
+                          onChange={(e) =>
+                            handleQuantityChange(
+                              "pet",
+                              item.maThuCung,
+                              parseInt(e.target.value)
+                            )
+                          }
+                          inputProps={{ min: 1 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {(item.giaKM ? item.giaKM : item.giaHienTai) *
+                          (petQuantities[item.maThuCung] || 1)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+            <Box style={{ borderTop: "1px solid #ddd", padding: "10px" }}>
               <Box display="flex" justifyContent="space-between">
                 <Typography variant="h6">
                   Tổng cộng: {calculateTotal().toLocaleString()}đ
                 </Typography>
-                <Button variant="contained" color="warning">
+                <Button
+                  variant="contained"
+                  color="warning"
+                  onClick={placeOrder}
+                >
                   Đặt hàng
                 </Button>
               </Box>

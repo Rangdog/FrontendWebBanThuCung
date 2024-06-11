@@ -96,6 +96,7 @@ export default function PrimarySearchAppBar() {
       setAnchorEl(null);
       handleMobileMenuClose();
       localStorage.removeItem("Token");
+      localStorage.removeItem("tenDangNhap");
       navigate("/");
     });
   };

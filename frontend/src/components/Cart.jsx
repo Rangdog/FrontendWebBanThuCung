@@ -5,7 +5,6 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Checkbox,
   IconButton,
   Button,
   Typography,
@@ -18,15 +17,25 @@ import {
   InputLabel,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { Link } from "react-router-dom";
 import Footer from "./Footer"; // Điều chỉnh đường dẫn import tùy theo cấu trúc của dự án
 import AxiosInstance from "./AxiosInstante";
 
 function Cart() {
+  const [maKhachHang, setMaKhachHang] = useState("");
   const [cartProducts, setCartProducts] = useState([]);
   const [cartPets, setCartPets] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [branches, setBranches] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [filterePets, setFilteredPets] = useState([]);
+
+  useEffect(() => {
+    const maKhachHang = localStorage.getItem("tenDangNhap");
+    if (maKhachHang) {
+      setMaKhachHang(maKhachHang);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -47,54 +56,61 @@ function Cart() {
 
   useEffect(() => {
     const fetchCartItems = async () => {
-      try {
-        const responseProducts = await AxiosInstance.post(
-          "/center/gio-hang/san-pham"
-        );
-        setCartProducts(responseProducts.data);
+      if (maKhachHang && selectedBranch) {
+        try {
+          const responseProducts = await AxiosInstance.post(
+            "/center/gio-hang/san-pham",
+            {
+              maKhachHang: maKhachHang,
+              maChiNhanh: selectedBranch,
+            }
+          );
 
-        const responsePets = await AxiosInstance.post(
-          "/center/gio-hang/thu-cung"
-        );
-        setCartPets(responsePets.data);
-
-        console.log(responseProducts.data);
-        console.log(responsePets.data);
-      } catch (error) {
-        console.error("Error fetching cart items:", error);
+          const responsePets = await AxiosInstance.post(
+            "/center/gio-hang/thu-cung",
+            {
+              maKhachHang: maKhachHang,
+              maChiNhanh: selectedBranch,
+            }
+          );
+          setCartPets(responsePets.data);
+          setCartProducts(responseProducts.data);
+          console.log(responseProducts.data);
+          console.log(responsePets.data);
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
       }
     };
 
     fetchCartItems();
-  }, []);
+  }, [maKhachHang, selectedBranch]);
+
+  useEffect(() => {
+    if (selectedBranch !== null) {
+      const filtered1 = cartProducts.filter(
+        (product) => product.maChiNhanh === parseInt(selectedBranch)
+      );
+      setFilteredProducts(filtered1);
+
+      console.log(filtered1);
+    }
+  }, [selectedBranch, cartProducts]);
+
+  useEffect(() => {
+    if (selectedBranch !== null) {
+      const filtered2 = cartPets.filter(
+        (pet) => pet.chiNhanh.maChiNhanh === parseInt(selectedBranch)
+      );
+      setFilteredPets(filtered2);
+      console.log(filtered2);
+    }
+  }, [selectedBranch, cartPets]);
 
   const handleBranchChange = (event) => {
-    setSelectedBranch(event.target.value);
-  };
-
-  const handleCheckboxChange = (event) => {
-    const isChecked = event.target.checked;
-    const updatedCartProducts = cartProducts.map((product) => ({
-      ...product,
-      selected: isChecked,
-    }));
-    setCartProducts(updatedCartProducts);
-    setSelectAll(isChecked);
-  };
-
-  const handleItemCheckboxChange = (id, isChecked) => {
-    const updatedCartProducts = cartProducts.map((product) =>
-      product.id === id ? { ...product, selected: isChecked } : product
-    );
-    setCartProducts(updatedCartProducts);
-    setSelectAll(updatedCartProducts.every((product) => product.selected));
-  };
-
-  const handleQuantityChange = (id, quantity) => {
-    const updatedCartProducts = cartProducts.map((product) =>
-      product.id === id ? { ...product, quantity: quantity } : product
-    );
-    setCartProducts(updatedCartProducts);
+    const branchId = event.target.value;
+    setSelectedBranch(branchId);
+    localStorage.setItem("maChiNhanh", branchId);
   };
 
   const handleDeleteItem = (id) => {
@@ -102,16 +118,10 @@ function Cart() {
       (product) => product.id !== id
     );
     setCartProducts(updatedCartProducts);
-    setSelectAll(updatedCartProducts.every((product) => product.selected));
-  };
 
-  const calculateTotal = () => {
-    return cartProducts.reduce((total, product) => {
-      if (product.selected) {
-        return total + product.price * product.quantity;
-      }
-      return total;
-    }, 0);
+    const updatedCartPets = cartPets.filter((pet) => pet.id !== id);
+    setCartProducts(updatedCartProducts);
+    setCartPets(updatedCartPets);
   };
 
   return (
@@ -138,11 +148,13 @@ function Cart() {
       <Box
         sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
       >
-        <Box sx={{ width: "48%" }}>
+        <Box
+          sx={{ width: "48%", border: "1px solid black", borderRadius: "5px" }}
+        >
           <Typography variant="h6" align="center">
             Sản phẩm
           </Typography>
-          {cartProducts.length === 0 ? (
+          {filteredProducts.length === 0 ? (
             <Typography variant="body1" align="center">
               Không có sản phẩm trong giỏ hàng
             </Typography>
@@ -150,63 +162,29 @@ function Cart() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectAll}
-                      onChange={handleCheckboxChange}
-                    />
-                  </TableCell>
                   <TableCell>Hình ảnh</TableCell>
                   <TableCell>Sản Phẩm</TableCell>
-                  <TableCell>Loại Sản Phẩm</TableCell>
                   <TableCell>Đơn Giá</TableCell>
-                  <TableCell>Số Lượng</TableCell>
-                  <TableCell>Thành tiền</TableCell>
+                  <TableCell>Số Lượng tồn</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {cartProducts.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <Checkbox
-                        checked={item.selected || false}
-                        onChange={(event) =>
-                          handleItemCheckboxChange(
-                            item.id,
-                            event.target.checked
-                          )
-                        }
-                      />
-                    </TableCell>
+                {filteredProducts.map((item) => (
+                  <TableRow key={item.maSanPham}>
                     <TableCell>
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.hinhAnh}
+                        alt={item.tenSanPham}
                         style={{ width: 50, height: 50 }}
                       />
                     </TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.price}</TableCell>
+                    <TableCell>{item.tenSanPham}</TableCell>
                     <TableCell>
-                      <IconButton
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity - 1)
-                        }
-                      >
-                        -
-                      </IconButton>
-                      {item.quantity}
-                      <IconButton
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity + 1)
-                        }
-                      >
-                        +
-                      </IconButton>
+                      {item.giaKM ? item.giaKM : item.giaHienTai}
                     </TableCell>
-                    <TableCell>{item.price * item.quantity}</TableCell>
+                    <TableCell>{item.soLuongTon}</TableCell>
+
                     <TableCell>
                       <IconButton onClick={() => handleDeleteItem(item.id)}>
                         <DeleteIcon />
@@ -218,11 +196,13 @@ function Cart() {
             </Table>
           )}
         </Box>
-        <Box sx={{ width: "48%" }}>
+        <Box
+          sx={{ width: "48%", border: "1px solid black", borderRadius: "5px" }}
+        >
           <Typography variant="h6" align="center">
             Thú cưng
           </Typography>
-          {cartPets.length === 0 ? (
+          {filterePets.length === 0 ? (
             <Typography variant="body1" align="center">
               Không có thú cưng trong giỏ hàng
             </Typography>
@@ -230,63 +210,28 @@ function Cart() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectAll}
-                      onChange={handleCheckboxChange}
-                    />
-                  </TableCell>
                   <TableCell>Hình ảnh</TableCell>
                   <TableCell>Thú Cưng</TableCell>
-                  <TableCell>Loại Thú Cưng</TableCell>
                   <TableCell>Đơn Giá</TableCell>
-                  <TableCell>Số Lượng</TableCell>
-                  <TableCell>Thành tiền</TableCell>
+                  <TableCell>Số Lượng Tồn</TableCell>
                   <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {cartPets.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <Checkbox
-                        checked={item.selected || false}
-                        onChange={(event) =>
-                          handleItemCheckboxChange(
-                            item.id,
-                            event.target.checked
-                          )
-                        }
-                      />
-                    </TableCell>
+                {filterePets.map((item) => (
+                  <TableRow key={item.maThuCung}>
                     <TableCell>
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.hinhAnh}
+                        alt={item.tenThuCung}
                         style={{ width: 50, height: 50 }}
                       />
                     </TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.price}</TableCell>
+                    <TableCell>{item.tenThuCung}</TableCell>
                     <TableCell>
-                      <IconButton
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity - 1)
-                        }
-                      >
-                        -
-                      </IconButton>
-                      {item.quantity}
-                      <IconButton
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity + 1)
-                        }
-                      >
-                        +
-                      </IconButton>
+                      {item.giaKM ? item.giaKM : item.giaHienTai}
                     </TableCell>
-                    <TableCell>{item.price * item.quantity}</TableCell>
+                    <TableCell>{item.soLuongTon}</TableCell>
                     <TableCell>
                       <IconButton onClick={() => handleDeleteItem(item.id)}>
                         <DeleteIcon />
@@ -317,14 +262,19 @@ function Cart() {
           spacing={2}
         >
           <Grid item>
-            <Typography variant="h6">
-              Tổng tiền: {calculateTotal()} đ
-            </Typography>
+            <Typography variant="h6"></Typography>
           </Grid>
           <Grid item>
-            <Button variant="contained" color="warning">
-              Đặt hàng
-            </Button>
+            <Link
+              to={{
+                pathname: "/order",
+              }}
+              style={{ textDecoration: "none" }}
+            >
+              <Button variant="contained" color="warning">
+                Đặt hàng
+              </Button>
+            </Link>
           </Grid>
         </Grid>
       </Box>
