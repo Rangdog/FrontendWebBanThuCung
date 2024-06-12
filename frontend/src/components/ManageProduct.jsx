@@ -13,26 +13,22 @@ const SearchBar = () => {
   );
 };
 
-const AddThuCungForm = ({ open, onClose, onSubmit }) => {
+const AddSanPhamForm = ({ open, onClose, onSubmit }) => {
     const { register, handleSubmit, setError, formState: { errors } } = useForm();
     const [selectedBranch, setSelectedBranch] = useState('');
-    const [selectedBreed, setSelectedBreed] = useState('');
+    const [selectedType, setSelectedType] = useState('');
     const [branches, setBranches] = useState([]);
-    const [breeds, setBreeds] = useState([]);
+    const [Types, setTypes] = useState([]);
     const [formError, setFormError] = useState(false);
-    const [selectedSaleStatus, setSelectedSaleStatus] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
      const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
      const handleFormSubmit = (data) => {
-        if (!selectedBranch || !selectedBreed || selectedSaleStatus === '') {
+        if (!selectedBranch || !selectedType) {
           if (!selectedBranch) {
             setError('chiNhanh', { type: 'required', message: 'Trường này là bắt buộc' });
           }
-          if (!selectedBreed) {
+          if (!selectedType) {
             setError('giong', { type: 'required', message: 'Trường này là bắt buộc' });
-          }
-          if (selectedSaleStatus === '') {
-            setError('trangThaiBan', { type: 'required', message: 'Trường này là bắt buộc' });
           }
           setFormError(true);
           return;
@@ -42,7 +38,7 @@ const AddThuCungForm = ({ open, onClose, onSubmit }) => {
         if (selectedImage) {
           formData.append('image', selectedImage);
         }
-        onSubmit({ ...data, chiNhanh: selectedBranch, giong: selectedBreed, trangThaiBan: selectedSaleStatus, hinhAnh: formData });
+        onSubmit({ ...data, maChiNhanh: selectedBranch.maChiNhanh, loaiSanPham: selectedType, hinhAnh: formData });
       };
       const getBranches = async () => {
         try {
@@ -52,29 +48,26 @@ const AddThuCungForm = ({ open, onClose, onSubmit }) => {
           console.error(err);
         }
       };
-      const getBreeds = async () => {
+      const getTypes = async () => {
         try {
-          const res = await AxiosInstance.get("center/giong");
-          setBreeds(res.data);
+          const res = await AxiosInstance.get("center/loaisanpham");
+          setTypes(res.data);
         } catch (err) {
           console.error(err);
         }
       };
       useEffect(() => {
         getBranches();
-        getBreeds();
+        getTypes();
       }, []);
       const handleBranchSelect = (event) => {
         const selectedBranch = branches.find(i => i.maChiNhanh === event.target.value);
         setSelectedBranch(selectedBranch);
       };
     
-      const handleBreedSelect = (event) => {
-        const selectedBreed = breeds.find(i => i.maGiong === event.target.value);
-        setSelectedBreed(selectedBreed);
-      };
-      const handleSaleStatusSelect = (event) => {
-        setSelectedSaleStatus(event.target.value);
+      const handleTypeSelect = (event) => {
+        const selectedType = Types.find(i => i.maLoaiSanPham === event.target.value);
+        setSelectedType(selectedType);
       };
       const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -83,26 +76,18 @@ const AddThuCungForm = ({ open, onClose, onSubmit }) => {
       };
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Thêm hoặc Chỉnh sửa Thú Cưng</DialogTitle>
+      <DialogTitle>Thêm Thú Cưng</DialogTitle>
       <DialogContent>
       <Box display="flex" alignItems="flex-start">
         <Box flex={1} pr={2}>
             <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
             <TextField
                 margin="dense"
-                label="Tên Thú Cưng"
+                label="Tên sản phẩm"
                 fullWidth
-                {...register("tenThuCung", { required: true })}
+                {...register("tenSanPham", { required: true })}
                 error={!!errors.tenThuCung}
                 helperText={errors.tenThuCung ? "Tên thú cưng là bắt buộc" : ""}
-            />
-            <TextField
-                margin="dense"
-                label="Chủ"
-                fullWidth
-                {...register("chu", { required: true })}
-                error={!!errors.chu}
-                helperText={errors.chu ? "Chủ thú cưng là bắt buộc" : ""}
             />
             <FormControl fullWidth error={!!errors.chiNhanh} margin="dense">
                 <InputLabel id="branch-select-label">Chi Nhánh</InputLabel>
@@ -121,42 +106,21 @@ const AddThuCungForm = ({ open, onClose, onSubmit }) => {
                 {errors.chiNhanh && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
             </FormControl>
             <FormControl fullWidth error={!!errors.giong} margin="dense">
-                <InputLabel id="breed-select-label">Giống</InputLabel>
+                <InputLabel id="breed-select-label">Loại sản phẩm</InputLabel>
                 <Select
                 labelId="breed-select-label"
-                value={selectedBreed ? selectedBreed.maGiong : ''}
-                onChange={handleBreedSelect}
+                value={selectedType ? selectedType.maLoaiSanPham : ''}
+                onChange={handleTypeSelect}
                 required
                 >
-                {breeds.map((i) => (
-                    <MenuItem key={i.maGiong} value={i.maGiong}>
-                    {i.tengiong}
+                {Types.map((i) => (
+                    <MenuItem key={i.maLoaiSanPham} value={i.maLoaiSanPham}>
+                    {i.tenLoaiSanPham}
                     </MenuItem>
                 ))}
                 </Select>
                 {errors.giong && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
             </FormControl>
-            <FormControl fullWidth error={!!errors.trangThaiBan} margin="dense">
-                <InputLabel id="sale-status-select-label">Trạng Thái Bán</InputLabel>
-                <Select
-                labelId="sale-status-select-label"
-                value={selectedSaleStatus}
-                onChange={handleSaleStatusSelect}
-                required
-                >
-                <MenuItem value={0}>Chưa bán</MenuItem>
-                <MenuItem value={1}>Đã bán</MenuItem>
-                </Select>
-                {errors.trangThaiBan && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
-            </FormControl>
-            <TextField
-                margin="dense"
-                label="Mô Tả"
-                fullWidth
-                {...register("moTa")}
-                multiline
-                rows={4}
-            />
             <TextField
                 margin="dense"
                 label="Giá Hiện Tại"
@@ -164,6 +128,15 @@ const AddThuCungForm = ({ open, onClose, onSubmit }) => {
                 {...register("giaHienTai", { required: true, valueAsNumber: true })}
                 error={!!errors.giaHienTai}
                 helperText={errors.giaHienTai ? "Giá hiện tại là bắt buộc" : ""}
+                type="number"
+            />
+            <TextField
+                margin="dense"
+                label="Số lượng tồn"
+                fullWidth
+                {...register("soLuongTon", { required: true, valueAsNumber: true })}
+                error={!!errors.soLuongTon}
+                helperText={errors.soLuongTon ? "Giá hiện tại là bắt buộc" : ""}
                 type="number"
             />
             <FormControl fullWidth margin="dense">
@@ -197,14 +170,13 @@ const AddThuCungForm = ({ open, onClose, onSubmit }) => {
   );
 };
 
-const EditThuCungForm = ({ open, onClose, onSubmit, pet }) => {
+const EditSanPhamForm = ({ open, onClose, onSubmit, product }) => {
   const { register, handleSubmit,setValue, setError, formState: { errors } } = useForm();
     const [selectedBranch, setSelectedBranch] = useState('');
-    const [selectedBreed, setSelectedBreed] = useState('');
+    const [selectedType, setSelectedType] = useState('');
     const [branches, setBranches] = useState([]);
-    const [breeds, setBreeds] = useState([]);
-    const [formError, setFormError] = useState(false);
-    const [selectedSaleStatus, setSelectedSaleStatus] = useState('');
+    const [types, setTypes] = useState([]);
+    const [formError, setFormError] = useState(false);;
     const [selectedImage, setSelectedImage] = useState(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
 
@@ -232,25 +204,22 @@ const EditThuCungForm = ({ open, onClose, onSubmit, pet }) => {
       return null;
   }
      const handleFormSubmit = (data) => {
-        if (!selectedBranch || !selectedBreed || selectedSaleStatus === '') {
-          if (!selectedBranch) {
-            setError('chiNhanh', { type: 'required', message: 'Trường này là bắt buộc' });
+        if (!selectedBranch || !selectedType) {
+            if (!selectedBranch) {
+              setError('chiNhanh', { type: 'required', message: 'Trường này là bắt buộc' });
+            }
+            if (!selectedType) {
+              setError('giong', { type: 'required', message: 'Trường này là bắt buộc' });
+            }
+            setFormError(true);
+            return;
           }
-          if (!selectedBreed) {
-            setError('giong', { type: 'required', message: 'Trường này là bắt buộc' });
+          // handle image upload if necessary
+          const formData = new FormData();
+          if (selectedImage) {
+            formData.append('image', selectedImage);
           }
-          if (selectedSaleStatus === '') {
-            setError('trangThaiBan', { type: 'required', message: 'Trường này là bắt buộc' });
-          }
-          setFormError(true);
-          return;
-        }
-        // handle image upload if necessary
-        const formData = new FormData();
-        if (selectedImage) {
-          formData.append('image', selectedImage);
-        }
-        onSubmit({ ...data, chiNhanh: selectedBranch, giong: selectedBreed, trangThaiBan: selectedSaleStatus, hinhAnh: formData });
+          onSubmit({ ...data, maChiNhanh: selectedBranch, loaiSanPham: selectedType, hinhAnh: formData });
       };
       const getBranches = async () => {
         try {
@@ -260,29 +229,26 @@ const EditThuCungForm = ({ open, onClose, onSubmit, pet }) => {
           console.error(err);
         }
       };
-      const getBreeds = async () => {
+      const getTypes = async () => {
         try {
-          const res = await AxiosInstance.get("center/giong");
-          setBreeds(res.data);
+          const res = await AxiosInstance.get("center/loaisanpham");
+          setTypes(res.data);
         } catch (err) {
           console.error(err);
         }
       };
       useEffect(() => {
         getBranches();
-        getBreeds();
+        getTypes();
       }, []);
       const handleBranchSelect = (event) => {
         const selectedBranch = branches.find(i => i.maChiNhanh === event.target.value);
         setSelectedBranch(selectedBranch);
       };
     
-      const handleBreedSelect = (event) => {
-        const selectedBreed = breeds.find(i => i.maGiong === event.target.value);
-        setSelectedBreed(selectedBreed);
-      };
-      const handleSaleStatusSelect = (event) => {
-        setSelectedSaleStatus(event.target.value);
+      const handleTypeSelect = (event) => {
+        const selectedType = Types.find(i => i.maLoaiSanPham === event.target.value);
+        setSelectedType(selectedType);
       };
       const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -291,30 +257,26 @@ const EditThuCungForm = ({ open, onClose, onSubmit, pet }) => {
         setImagePreviewUrl(URL.createObjectURL(file));
       };
       useEffect(()=>{
-        if(!pet){
+        if(!product){
           return;
         }
-        setValue('maThuCung',pet.maThuCung)
-        setValue('tenThuCung', pet.tenThuCung)
-        setValue('chu', pet.chu)
-        setSelectedBranch(pet.chiNhanh)
-        setSelectedBreed(pet.giong)
-        setSelectedSaleStatus(pet.trangThaiBan)
-        setValue('moTa',pet.moTa)
-        setValue('giaHienTai', pet.giaHienTai)
-        setValue('soLuongTon',pet.soLuongTon)
+        setValue('maSanPham',product.maSanPham)
+        setValue('tenSanPham', product.tenSanPham)
+        setSelectedBranch(product.maChiNhanh)
+        setSelectedType(product.loaiSanPham)
+        setValue('giaHienTai', product.giaHienTai)
         setImagePreviewUrl('');
-      },[pet])
+      },[product])
       useEffect(() => {
-        if(!pet){
+        if(!product){
           return
         }
         const fetchImageUrls = async () => {
             const urls = {};
-              if (pet.hinhAnh && pet.hinhAnh[0]) {
-                  const imageUrl = await getHinhAnh(pet.hinhAnh[0]);
+              if (product.hinhAnh && product.hinhAnh[0]) {
+                  const imageUrl = await getHinhAnh(product.hinhAnh[0]);
                   if (imageUrl) {
-                      urls[pet.hinhAnh[0]] = imageUrl;
+                      urls[product.hinhAnh[0]] = imageUrl;
                       setImagePreviewUrl(imageUrl);
                   }
               }
@@ -322,50 +284,42 @@ const EditThuCungForm = ({ open, onClose, onSubmit, pet }) => {
         };
       
         fetchImageUrls();
-      }, [pet]);
-      if(!pet){
+      }, [product]);
+      if(!product){
         return;
       }
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Thêm hoặc Chỉnh sửa Thú Cưng</DialogTitle>
+      <DialogTitle>Chỉnh sửa Thú Cưng</DialogTitle>
       <DialogContent>
       <Box display="flex" alignItems="flex-start">
         <Box flex={1} pr={2}>
-            <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+        <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+                <TextField
+                    margin="dense"
+                    label="Mã sản phẩm"
+                    fullWidth
+                    value={product.maSanPham}
+                    readOnly
+                    {...register("maSanPham", { required: true })}
+
+                />
             <TextField
                 margin="dense"
-                label="Mã thú cưng"
+                label="Tên sản phẩm"
                 fullWidth
-                {...register("maThuCung", { required: true })}
-                readOnly
-            />
-            <TextField
-                margin="dense"
-                label="Tên Thú Cưng"
-                defaultValue={pet.tenThuCung}
-                fullWidth
-                {...register("tenThuCung", { required: true })}
-                error={!!errors.tenThuCung}
-                helperText={errors.tenThuCung ? "Tên thú cưng là bắt buộc" : ""}
-            />
-            <TextField
-                margin="dense"
-                label="Chủ"
-                fullWidth
-                defaultValue={pet.chu}
-                {...register("chu", { required: true })}
-                error={!!errors.chu}
-                helperText={errors.chu ? "Chủ thú cưng là bắt buộc" : ""}
+                defaultValue={product.tenSanPham}
+                {...register("tenSanPham", { required: true })}
+                error={!!errors.tenSanPham}
+                helperText={errors.tenSanPham ? "Tên thú cưng là bắt buộc" : ""}
             />
             <FormControl fullWidth error={!!errors.chiNhanh} margin="dense">
                 <InputLabel id="branch-select-label">Chi Nhánh</InputLabel>
                 <Select
                 labelId="branch-select-label"
-                value={selectedBranch ? selectedBranch.maChiNhanh : ''}
+                value={selectedBranch ? selectedBranch : ''}
                 onChange={handleBranchSelect}
                 required
-                defaultValue={pet.maChiNhanh}
                 >
                 {branches.map((i) => (
                     <MenuItem key={i.maChiNhanh} value={i.maChiNhanh}>
@@ -376,63 +330,29 @@ const EditThuCungForm = ({ open, onClose, onSubmit, pet }) => {
                 {errors.chiNhanh && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
             </FormControl>
             <FormControl fullWidth error={!!errors.giong} margin="dense">
-                <InputLabel id="breed-select-label">Giống</InputLabel>
+                <InputLabel id="breed-select-label">Loại sản phẩm</InputLabel>
                 <Select
                 labelId="breed-select-label"
-                value={selectedBreed ? selectedBreed.maGiong : ''}
-                onChange={handleBreedSelect}
+                value={selectedType ? selectedType.maLoaiSanPham : ''}
+                onChange={handleTypeSelect}
                 required
-                defaultValue={pet.maGiong}
                 >
-                {breeds.map((i) => (
-                    <MenuItem key={i.maGiong} value={i.maGiong}>
-                    {i.tengiong}
+                {types.map((i) => (
+                    <MenuItem key={i.maLoaiSanPham} value={i.maLoaiSanPham}>
+                    {i.tenLoaiSanPham}
                     </MenuItem>
                 ))}
                 </Select>
-                {errors.giong && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
+                {errors.loaiSanPham && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
             </FormControl>
-            <FormControl fullWidth error={!!errors.trangThaiBan} margin="dense">
-                <InputLabel id="sale-status-select-label">Trạng Thái Bán</InputLabel>
-                <Select
-                labelId="sale-status-select-label"
-                value={selectedSaleStatus}
-                onChange={handleSaleStatusSelect}
-                required
-                defaultValue={pet.trangThaiBan}
-                >
-                <MenuItem value={0}>Chưa bán</MenuItem>
-                <MenuItem value={1}>Đã bán</MenuItem>
-                </Select>
-                {errors.trangThaiBan && <FormHelperText>Trường này là bắt buộc</FormHelperText>}
-            </FormControl>
-            <TextField
-                margin="dense"
-                label="Mô Tả"
-                defaultValue={pet.moTa}
-                fullWidth
-                {...register("moTa")}
-                multiline
-                rows={4}
-            />
             <TextField
                 margin="dense"
                 label="Giá Hiện Tại"
                 fullWidth
-                defaultValue={pet.giaHienTai}
+                defaultValue={product.giaHienTai}
                 {...register("giaHienTai", { required: true, valueAsNumber: true })}
                 error={!!errors.giaHienTai}
                 helperText={errors.giaHienTai ? "Giá hiện tại là bắt buộc" : ""}
-                type="number"
-            />
-            <TextField
-                margin="dense"
-                label="Số lượng tồn"
-                fullWidth
-                defaultValue={pet.soLuongTon}
-                {...register("soLuongTon", { required: true, valueAsNumber: true })}
-                error={!!errors.soLuongTon}
-                helperText={errors.soLuongTon ? "Số lượng tồn là bắt buộc" : ""}
                 type="number"
             />
             <FormControl fullWidth margin="dense">
@@ -488,27 +408,27 @@ const ManageAccount = () => {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const tableRef = useRef(null);
-    const [pets, setPets] = useState([]);
+    const [products, setProducts] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
     const [imageUrls, setImageUrls] = useState({});
-    const getBreed = async ()=>{
+    const getProduct = async ()=>{
       try{
-        const res = await AxiosInstance.get("/center/thucung")
-        setPets(res.data)
+        const res = await AxiosInstance.get("/center/sanpham")
+        setProducts(res.data)
       }
       catch(err){
         console.error(err);
       }
     }
-    const handleConfirmDelete = async (pet) => {
+    const handleConfirmDelete = async (product) => {
       try {
-          const res = await AxiosInstance.delete(`/center/thucung/${pet.maThuCung}`);
+          const res = await AxiosInstance.delete(`/center/sanpham/${product.maSanPham}/${product.maChiNhanh}`);
           if (res.status === 200) {
-              enqueueSnackbar('Xóa thú cưng thành công', { variant: 'success', autoHideDuration: 3000 });
-              getBreed();
+              enqueueSnackbar('Xóa sản phẩm thành công', { variant: 'success', autoHideDuration: 3000 });
+              getProduct()
           }
       } catch (err) {
-          enqueueSnackbar('Lỗi khi xóa thú cưng', { variant: 'error', autoHideDuration: 3000 });
+          enqueueSnackbar('Lỗi khi xóa sản phẩm', { variant: 'error', autoHideDuration: 3000 });
           console.error(err);
       }
       setIsConfirmOpen(false);
@@ -549,23 +469,22 @@ const ManageAccount = () => {
   const handleFormSubmit = async(data) => {
 
     const { hinhAnh, ...rest } = data;
-    console.log(hinhAnh.get('image'));
     try{
-      const res = await AxiosInstance.post("/center/thucung", rest)
+      const res = await AxiosInstance.post("/center/sanpham", rest)
       if(res.status === 200){
        try{
-        console.log(res.data.maThuCung)
+        console.log(res.data.maSanPham)
         const pushimage = await AxiosInstance.post("/center/image", {
           "image":hinhAnh.get('image'),
-          "maThuCung": res.data.maThuCung
+          "maSanPham": res.data.maSanPham
         },{
           headers: {
               'Content-Type': 'multipart/form-data',
             },
         })
         if(pushimage.status === 200){
-          enqueueSnackbar('Thêm thú cưng thành công', {variant : 'success', autoHideDuration: 3000} )
-          getBreed()
+          enqueueSnackbar('Thêm sản phẩm thành công', {variant : 'success', autoHideDuration: 3000} )
+          getProduct()
         }
       }
       catch(e){
@@ -575,7 +494,7 @@ const ManageAccount = () => {
       }
     }
     catch(err){
-      enqueueSnackbar('Lỗi thêm thú cưng', {variant : 'error', autoHideDuration: 3000} )
+      enqueueSnackbar('Lỗi thêm sản phẩm', {variant : 'error', autoHideDuration: 3000} )
       console.log(err)
     }
     handleDialogClose();
@@ -590,22 +509,23 @@ const ManageAccount = () => {
   const handleEditFormSubmit = async(data) => {
     console.log("Form Data:", data);
     const { hinhAnh, ...rest } = data;
+    console.log(rest)
     if(hinhAnh.get('image')){
       try{
-        const res = await AxiosInstance.put("/center/thucung", rest)
+        const res = await AxiosInstance.put("/center/sanpham", rest)
         if(res.status === 200){
           try{
             const pushimage = await AxiosInstance.post("/center/image", {
               "image":hinhAnh.get('image'),
-              "maThuCung": res.data.maThuCung
+              "maSanPham": res.data.maThuCung
             },{
               headers: {
                   'Content-Type': 'multipart/form-data',
                 },
             })
             if(pushimage.status === 200){
-              enqueueSnackbar('Sửa thú cưng thành công', {variant : 'success', autoHideDuration: 3000} )
-              getBreed()
+              enqueueSnackbar('Sửa sản phẩm thành công', {variant : 'success', autoHideDuration: 3000} )
+              getProduct()
             }
           }
           catch(e){
@@ -616,20 +536,20 @@ const ManageAccount = () => {
       }
       catch(err){
         console.log(err)
-        enqueueSnackbar('Lỗi cập nhập thú cưng', {variant : 'error', autoHideDuration: 3000} )
+        enqueueSnackbar('Lỗi cập nhập sản phẩm', {variant : 'error', autoHideDuration: 3000} )
       }
     }
     else{
       try{
-        const res = await AxiosInstance.put("/center/thucung", rest)
+        const res = await AxiosInstance.put("/center/sanpham", rest)
         if(res.status === 200){
-          enqueueSnackbar(' sửa thú cưng thành công', {variant : 'success', autoHideDuration: 3000} )
-          getBreed()
+          enqueueSnackbar('sửa sản phẩm thành công', {variant : 'success', autoHideDuration: 3000} )
+          getProduct()
         }
       }
       catch(err){
         console.log(err)
-        enqueueSnackbar('Lỗi cập nhập thú cưng', {variant : 'error', autoHideDuration: 3000} )
+        enqueueSnackbar('Lỗi cập nhập sản phẩm', {variant : 'error', autoHideDuration: 3000} )
       }
     }
     handleEditDialogClose();
@@ -669,7 +589,7 @@ const ManageAccount = () => {
 useEffect(() => {
   const fetchImageUrls = async () => {
       const urls = {};
-      for (const pet of pets) {
+      for (const pet of products) {
           if (pet.hinhAnh && pet.hinhAnh[0]) {
               const imageUrl = await getHinhAnh(pet.hinhAnh[0]);
               if (imageUrl) {
@@ -681,56 +601,50 @@ useEffect(() => {
   };
 
   fetchImageUrls();
-}, [pets]);
+}, [products]);
 
   useEffect(()=>{
-    getBreed();
-    console.log(pets)
+    getProduct();
+    console.log(products)
   },[])
   return (
     <>
         <SearchBar/>
         <ActionButtons onEdit={handleEdit} onDelete={handleDelete} onOpenDialog={handleDialogOpen} onOpenEditForm = {handleEditDialogOpen} isDisabled={selectedBreedIndex === null}/>
-        <AddThuCungForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
-        <EditThuCungForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} pet = {pets[selectedBreedIndex]} /> 
-        <ConfirmationDialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={()=>handleConfirmDelete(pets[selectedBreedIndex])} />
+        <AddSanPhamForm open={isDialogOpen} onClose={handleDialogClose} onSubmit={handleFormSubmit} />
+        <EditSanPhamForm open={isEditOpen} onClose={handleEditDialogClose} onSubmit={handleEditFormSubmit} product = {products[selectedBreedIndex]} /> 
+        <ConfirmationDialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)} onConfirm={()=>handleConfirmDelete(products[selectedBreedIndex])} />
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
             <TableContainer sx={{ maxHeight: 440 }} ref={tableRef}>
                 <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                     <TableRow>
-                        <TableCell>Mã thú cưng</TableCell>
+                        <TableCell>Mã sản phẩm</TableCell>
                         <TableCell>Hình ảnh</TableCell>
-                        <TableCell>Tên thú cưng</TableCell>
-                        <TableCell>Trạng thái bán</TableCell>
-                        <TableCell>Chủ</TableCell>
-                        <TableCell>Mô tả</TableCell>
+                        <TableCell>Tên sản phẩm</TableCell>
                         <TableCell>Giá</TableCell>
                         <TableCell>Giá khuyến mãi</TableCell>
-                        <TableCell>Chi nhánh</TableCell>
-                        <TableCell>Giống</TableCell>
+                        <TableCell>Mã chi nhánh</TableCell>
+                        <TableCell>loại sản phẩm</TableCell>
                         <TableCell>Số lượng tồn</TableCell>        
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {pets.map((pet, index) => (
+                    {products.map((product, index) => (
                         <TableRow key={index}
                             onClick={() => handleRowClick(index)}
                             sx={{ backgroundColor: selectedBreedIndex === index ? "#f0f0f0" : "inherit" }}
                         >
-                            <TableCell>{pet.maThuCung}</TableCell>
-                            <TableCell> {pet.hinhAnh && pet.hinhAnh[0] && imageUrls[pet.hinhAnh[0]] ? (
-                                    <img src={imageUrls[pet.hinhAnh[0]]} alt="Hình ảnh" />
+                            <TableCell>{product.maSanPham}</TableCell>
+                            <TableCell> {product.hinhAnh && product.hinhAnh[0] && imageUrls[product.hinhAnh[0]] ? (
+                                    <img src={imageUrls[product.hinhAnh[0]]} alt="Hình ảnh" />
                                 ) : ''}</TableCell>
-                            <TableCell>{pet.tenThuCung}</TableCell>
-                            <TableCell>{pet.trangThaiBan}</TableCell>
-                            <TableCell>{pet.chu}</TableCell>
-                            <TableCell>{pet.moTa}</TableCell>
-                            <TableCell>{pet.giaHienTai}</TableCell>
-                            <TableCell>{pet.giaKM}</TableCell>
-                            <TableCell>{pet.chiNhanh.tenChiNhanh}</TableCell>
-                            <TableCell>{pet.giong.tengiong}</TableCell>
-                            <TableCell>{pet.soLuongTon}</TableCell>           
+                            <TableCell>{product.tenSanPham}</TableCell>
+                            <TableCell>{product.giaHienTai}</TableCell>
+                            <TableCell>{product.giaKM}</TableCell>
+                            <TableCell>{product.maChiNhanh}</TableCell>
+                            <TableCell>{product.loaiSanPham.tenLoaiSanPham}</TableCell>
+                            <TableCell>{product.soLuongTon}</TableCell>           
                         </TableRow>
                     ))}
                 </TableBody>

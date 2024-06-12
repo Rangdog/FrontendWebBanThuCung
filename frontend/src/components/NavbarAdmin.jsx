@@ -21,21 +21,39 @@ import Inventory2Icon from '@mui/icons-material/Inventory2';
 import SpaIcon from '@mui/icons-material/Spa';
 import CategoryIcon from '@mui/icons-material/Category';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+
 import {Link, useLocation} from 'react-router-dom';
+import {useNavigate } from "react-router-dom";
 const drawerWidth = 240;
 
 export default function NavbarAdmin(props) {
     const {content} = props
     const location  =  useLocation()
     const path = location.pathname
+    const quyen = localStorage.getItem('quyen')
+    const navigate = useNavigate()
+    const handleDangXuat = ()=>{
+      localStorage.removeItem('Token')
+      localStorage.removeItem('quyen')
+      localStorage.removeItem('tenDangNhap')
+      navigate('/login')
+    }
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
+        {quyen === 'admin'&& <Typography variant="h6" noWrap component="div">
             Admin
-          </Typography>
+          </Typography>}
+          {quyen === 'quanly'&& <Typography variant="h6" noWrap component="div">
+            Quản lý
+          </Typography>}
+          {quyen === 'nhanvien'&& <Typography variant="h6" noWrap component="div">
+            Nhân viên
+          </Typography>}
         </Toolbar>
       </AppBar>
       <Drawer
@@ -49,98 +67,115 @@ export default function NavbarAdmin(props) {
         <Toolbar />
         <Box sx={{ overflow: 'auto' }}>
           <List>
-              <ListItem key={1} disablePadding>
+            {quyen === 'admin' && <ListItem key={1} disablePadding>
                 <ListItemButton component = {Link} to = "/admin" selected={"/admin" === path} >
                   <ListItemIcon>
                    <AccountCircleIcon />
                   </ListItemIcon>
                   <ListItemText primary={"Quản lý Tài khoản"} />
                 </ListItemButton>
-              </ListItem>
+              </ListItem>}
+          
+              {quyen ==='quanly' && 
+                <>
+                  <ListItem key={2} disablePadding>
+                      <ListItemButton component = {Link} to = "/admin/nhanvien" selected={"/admin/nhanvien" === path}>
+                        <ListItemIcon>
+                        <BadgeIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={"Quản lý nhân viên"} />
+                      </ListItemButton>
+                    </ListItem>
 
-              <ListItem key={2} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/nhanvien" selected={"/admin/nhanvien" === path}>
-                  <ListItemIcon>
-                   <BadgeIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý nhân viên"} />
-                </ListItemButton>
-              </ListItem>
+                    <ListItem key={3} disablePadding>
+                    <ListItemButton component = {Link} to = "/admin/chinhanh" selected={"/admin/chinhanh" === path}>
+                      <ListItemIcon>
+                      <InboxIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={"Quản lý chi nhánh"} />
+                    </ListItemButton>
+                  </ListItem>
 
-              <ListItem key={3} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/chinhanh" selected={"/admin/chinhanh" === path}>
-                  <ListItemIcon>
-                   <InboxIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý chi nhánh"} />
-                </ListItemButton>
-              </ListItem>
+                  <ListItem key={12} disablePadding>
+                    <ListItemButton component = {Link} to = "/admin/thucung" selected={"/admin/thucung" === path}>
+                      <ListItemIcon>
+                      <PriceChangeIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={"Quản lý thú cưng"} />
+                    </ListItemButton>
+                  </ListItem>
 
-              <ListItem key={12} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/thucung" selected={"/admin/thucung" === path}>
-                  <ListItemIcon>
-                   <PriceChangeIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý thú cưng"} />
-                </ListItemButton>
-              </ListItem>
+                  <ListItem key={13} disablePadding>
+                    <ListItemButton component = {Link} to = "/admin/sanpham" selected={"/admin/sanpham" === path}>
+                      <ListItemIcon>
+                      <PriceChangeIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={"Quản lý sản phẩm"} />
+                    </ListItemButton>
+                  </ListItem>
 
-              <ListItem key={13} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/sanpham" selected={"/admin/sanpham" === path}>
-                  <ListItemIcon>
-                   <PriceChangeIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý sản phẩm"} />
-                </ListItemButton>
-              </ListItem>
+                  <ListItem key={4} disablePadding>
+                    <ListItemButton component = {Link} to = "/admin/banggia" selected={"/admin/banggia" === path}>
+                      <ListItemIcon>
+                      <PriceChangeIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={"Quản lý giá"} />
+                    </ListItemButton>
+                  </ListItem>
+        
+                  <ListItem key={6} disablePadding>
+                    <ListItemButton component = {Link} to = "/admin/loaisp" selected={"/admin/loaisp" === path}>
+                      <ListItemIcon>
+                      <Inventory2Icon />
+                      </ListItemIcon>
+                      <ListItemText primary={"Quản lý loại"} />
+                    </ListItemButton>
+                  </ListItem>
 
-              <ListItem key={4} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/banggia" selected={"/admin/banggia" === path}>
-                  <ListItemIcon>
-                   <PriceChangeIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý giá"} />
-                </ListItemButton>
-              </ListItem>
-    
-              <ListItem key={6} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/loaisp" selected={"/admin/loaisp" === path}>
-                  <ListItemIcon>
-                   <Inventory2Icon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý loại"} />
-                </ListItemButton>
-              </ListItem>
+                  <ListItem key={7} disablePadding>
+                    <ListItemButton component = {Link} to = "/admin/loaithucung" selected={"/admin/loaithucung" === path}>
+                      <ListItemIcon>
+                      <PetsIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={"Quản lý loài"} />
+                    </ListItemButton>
+                  </ListItem>
 
-              <ListItem key={7} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/loaithucung" selected={"/admin/loaithucung" === path}>
-                  <ListItemIcon>
-                   <PetsIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý loài"} />
-                </ListItemButton>
-              </ListItem>
-
-              <ListItem key={8} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/giong" selected={"/admin/giong" === path}>
-                  <ListItemIcon>
-                   <SpaIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={"Quản lý giông"} />
-                </ListItemButton>
-              </ListItem>
+                  <ListItem key={8} disablePadding>
+                    <ListItemButton component = {Link} to = "/admin/giong" selected={"/admin/giong" === path}>
+                      <ListItemIcon>
+                      <SpaIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={"Quản lý giông"} />
+                    </ListItemButton>
+                  </ListItem>
+                </>
+              }
           </List>
           <Divider />
           <List>
-        
-              <ListItem key={9} disablePadding>
-                <ListItemButton component = {Link} to = "/admin/nhaphang" selected={"/admin/nhaphang" === path}>
-                  <ListItemIcon>
-                     <CategoryIcon /> 
-                  </ListItemIcon>
-                  <ListItemText primary={"Nhập hàng"} />
-                </ListItemButton>
-              </ListItem>
+              {quyen==='nhanvien' && 
+              <>
+                <ListItem key={9} disablePadding>
+                  <ListItemButton component = {Link} to = "/admin/nhaphang" selected={"/admin/nhaphang" === path}>
+                    <ListItemIcon>
+                      <CategoryIcon /> 
+                    </ListItemIcon>
+                    <ListItemText primary={"Nhập hàng"} />
+                  </ListItemButton>
+                </ListItem>
+
+                <ListItem key={20} disablePadding>
+                  <ListItemButton component = {Link} to = "/admin/laphoadon" selected={"/admin/laphoadon" === path}>
+                    <ListItemIcon>
+                      <ReceiptIcon /> 
+                    </ListItemIcon>
+                    <ListItemText primary={"Lập hóa đơn"} />
+                  </ListItemButton>
+                </ListItem>
+              </>
+              }
+
 
               <ListItem key={10} disablePadding>
                 <ListItemButton>
@@ -151,7 +186,7 @@ export default function NavbarAdmin(props) {
                 </ListItemButton>
               </ListItem>
 
-              <ListItem key={11} disablePadding>
+              <ListItem key={11} disablePadding onClick={handleDangXuat}>
                 <ListItemButton>
                   <ListItemIcon>
                      <LogoutIcon /> 

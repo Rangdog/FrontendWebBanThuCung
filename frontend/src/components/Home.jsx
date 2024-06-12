@@ -26,6 +26,7 @@ const Home = () => {
   const [branches, setBranches] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredPets, setFilteredPets] = useState([]);
+  const [imageUrls, setImageUrls] = useState({});
   const [pageProduct, setPageProduct] = useState(1); // Product pagination page
   const [pagePet, setPagePet] = useState(1); // Pet pagination page
   const itemsPerPage = 8; // Number of items per page
@@ -67,6 +68,7 @@ const Home = () => {
       try {
         const response = await AxiosInstance.get("/center/ct-thu-cung");
         setPets(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching pets:", error);
       }
@@ -137,7 +139,22 @@ const Home = () => {
       alert("Có lỗi xảy ra khi thêm thú cưng vào giỏ hàng!");
     }
   };
-
+  const base64ToBlob = (base64, mime) => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mime });
+  };
+const getHinhAnh = (src)=>{
+  const base64Image = src;
+  const blob = base64ToBlob(base64Image, 'image/jpeg');
+  const imageUrl = URL.createObjectURL(blob);
+  return imageUrl
+          
+}
   return (
     <Container>
       <FormControl fullWidth margin="normal">
@@ -172,7 +189,7 @@ const Home = () => {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={product.hinhAnh}
+                  image={product.hinhAnh ? getHinhAnh(product.hinhAnh): ''}
                   alt={product.tenSanPham}
                 />
                 <CardContent sx={{ flex: "1 0 auto" }}>
@@ -245,7 +262,7 @@ const Home = () => {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={pet.hinhAnh}
+                  image={pet.hinhAnh ? getHinhAnh(pet.hinhAnh): ''}
                   alt={pet.tenThuCung}
                 />
                 <CardContent sx={{ flex: "1 0 auto" }}>
