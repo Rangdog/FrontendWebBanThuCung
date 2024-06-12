@@ -205,6 +205,7 @@ const ManageEmployees = () => {
     const tableRef = useRef(null);
     const { enqueueSnackbar } = useSnackbar();
     const [employees, setEmployees] = useState([]);
+    const [imageUrls, setImageUrls] = useState({});
     const getEmployees = async()=>{
       try {
           const res = await AxiosInstance.get("/identity/nhanvien");
@@ -298,7 +299,8 @@ const base64ToBlob = (base64, mime) => {
 };
 const getHinhAnh = async (id) => {
   try {
-      const res = await AxiosInstance.post("/center/hinhanh/get", [id]);
+      console.log(id)
+      const res = await AxiosInstance.post("/identity/hinhanh/get", [id]);
       if (res.status === 200) {
         const base64Image = res.data[0].source;
         const blob = base64ToBlob(base64Image, 'image/jpeg');
