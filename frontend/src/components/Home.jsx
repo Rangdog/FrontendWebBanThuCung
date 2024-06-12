@@ -78,34 +78,6 @@ const Home = () => {
     fetchProducts();
     fetchPets();
   }, []);
-
-  const addToCartPets = async (id) => {
-    try {
-      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
-        maKhachHang: maKhachHang,
-        maThuCung: id,
-      });
-      alert("Đã thêm thú cưng vào giỏ hàng!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
-    }
-  };
-
-  const addToCartProducts = async (id) => {
-    try {
-      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
-        maKhachHang: maKhachHang,
-        maSanPham: id,
-        maChiNhanh: selectedBranch,
-      });
-      alert("Đã thêm sản phẩm vào giỏ hàng!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
-    }
-  };
-
   useEffect(() => {
     const maKhachHang = localStorage.getItem("tenDangNhap");
     if (maKhachHang) {
@@ -153,33 +125,7 @@ const Home = () => {
     fetchPets();
   }, []);
 
-  const addToCartPets = async (id) => {
-    try {
-      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
-        maKhachHang: maKhachHang,
-        maThuCung: id,
-      });
-      alert("Đã thêm thú cưng vào giỏ hàng!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
-    }
-  };
-
-  const addToCartProducts = async (id) => {
-    try {
-      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
-        maKhachHang: maKhachHang,
-        maSanPham: id,
-        maChiNhanh: selectedBranch,
-      });
-      alert("Đã thêm sản phẩm vào giỏ hàng!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
-    }
-  };
-
+  
   useEffect(() => {
     if (selectedBranch !== null) {
       // Filter products and pets based on selected branch
@@ -284,24 +230,17 @@ const getHinhAnh = (src)=>{
             <Card
               sx={{ display: "flex", flexDirection: "column", height: "100%" }}
             >
-              <CardMedia
-                component="img"
-                height="200"
-                image={product.hinhAnh}
-                alt={product.tenSanPham}
-                onClick={() => navigate(`/product/${product.maSanPham}`)}
-              />
-              <CardContent
-                sx={{ flex: "1 0 auto" }}
-                onClick={() => navigate(`/product/${product.maSanPham}`)}
-              >
-                <CardMedia
+            <CardMedia
                   component="img"
                   height="200"
                   image={product.hinhAnh ? getHinhAnh(product.hinhAnh): ''}
                   alt={product.tenSanPham}
+                  onClick={() => navigate(`/product/${product.maSanPham}`)}
                 />
-                <CardContent sx={{ flex: "1 0 auto" }}>
+              <CardContent
+                sx={{ flex: "1 0 auto" }}
+                onClick={() => navigate(`/product/${product.maSanPham}`)}
+              >
                   <Typography variant="h6" component="div">
                     {product.tenSanPham}
                   </Typography>
@@ -309,21 +248,16 @@ const getHinhAnh = (src)=>{
                     {product.tenLoaiSanPham}
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {product.giaKhuyenMai ? (
-                      <>
-                        <Typography variant="body2" color="error">
-                          {product.giaKhuyenMai} VND
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ textDecoration: "line-through", marginLeft: 1 }}
-                        >
-                          {product.giaHienTai} VND
-                        </Typography>
-                      </>
-                    ) : (
-                      <Typography variant="body2" color="text.primary">
+                  {product.giaKhuyenMai ? (
+                    <>
+                      <Typography variant="body2" color="error">
+                        {product.giaKhuyenMai} VND
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ textDecoration: "line-through", marginLeft: 1 }}
+                      >
                         {product.giaHienTai} VND
                       </Typography>
                     </>
@@ -387,23 +321,16 @@ const getHinhAnh = (src)=>{
               sx={{ display: "flex", flexDirection: "column", height: "100%" }}
             >
               <CardMedia
-                component="img"
-                height="200"
-                image={pet.hinhAnh}
-                alt={pet.tenThuCung}
-                onClick={() => navigate(`/pet/${pet.maThuCung}`)}
-              />
-              <CardContent
-                sx={{ flex: "1 0 auto" }}
-                onClick={() => navigate(`/pet/${pet.maThuCung}`)}
-              >
-                <CardMedia
                   component="img"
                   height="200"
                   image={pet.hinhAnh ? getHinhAnh(pet.hinhAnh): ''}
                   alt={pet.tenThuCung}
+                  onClick={() => navigate(`/pet/${pet.maThuCung}`)}
                 />
-                <CardContent sx={{ flex: "1 0 auto" }}>
+              <CardContent
+                sx={{ flex: "1 0 auto" }}
+                onClick={() => navigate(`/pet/${pet.maThuCung}`)}
+              >
                   <Typography variant="h6" component="div">
                     {pet.tenThuCung}
                   </Typography>
@@ -411,21 +338,16 @@ const getHinhAnh = (src)=>{
                     {pet.tenGiong}
                   </Typography>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {pet.giaKhuyenMai ? (
-                      <>
-                        <Typography variant="body2" color="error">
-                          {pet.giaKhuyenMai} VND
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ textDecoration: "line-through", marginLeft: 1 }}
-                        >
-                          {pet.giaHienTai} VND
-                        </Typography>
-                      </>
-                    ) : (
-                      <Typography variant="body2" color="text.primary">
+                  {pet.giaKhuyenMai ? (
+                    <>
+                      <Typography variant="body2" color="error">
+                        {pet.giaKhuyenMai} VND
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ textDecoration: "line-through", marginLeft: 1 }}
+                      >
                         {pet.giaHienTai} VND
                       </Typography>
                     </>
