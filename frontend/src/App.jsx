@@ -32,8 +32,9 @@ import OrderDetail from "./components/OrderDetail";
 import ProductItem from "./components/ProductItem";
 import PetItem from "./components/PetItem";
 
-import ProtectedRouterToken from "./components/ProtectedRouterToken";
-import ProtectedRouter from "./components/ProtectedRouterQuyen";
+import ProtectedRouterToken from "./components/ProtectedRouter/ProtectedRouterToken";
+import ProtectedRouter from "./components/ProtectedRouter/ProtectedRouterQuyen";
+import ProtectedRouterAdmin from "./components/ProtectedRouter/ProtectedRouterAdmin";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -68,10 +69,12 @@ function App() {
         <Routes>
           <Route element={<ProtectedRouter/>}>
             <Route element={<ProtectedRouterToken/>} >
-                <Route
-                  path="/admin"
-                  element={<NavbarAdmin content={<ManageAccount />} />}
-                />
+                <Route element={<ProtectedRouterAdmin/>}>
+                  <Route
+                    path="/admin"
+                    element={<NavbarAdmin content={<ManageAccount />} />}
+                  />
+                </Route>
                 <Route
                   path="/admin/nhanvien"
                   element={<NavbarAdmin content={<ManageEmployees />} />}
