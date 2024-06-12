@@ -281,7 +281,9 @@ const ManageAccount = () => {
                     {account.map((acc, index) => (
                         <TableRow key={index}
                             onClick={() => handleRowClick(index)}
-                            sx={{ backgroundColor: selectedAccountIndex === index ? "#f0f0f0" : "inherit" }}
+                           sx={{ 
+                                  backgroundColor: selectedAccountIndex === index ? "#f0f0f0" : acc.trangThai ? '#C8E6C9' : '#FFCDD2'
+                              }}
                         >
                             <TableCell>{acc.tenDangNhap}</TableCell>
                             <TableCell>{acc.quyen}</TableCell>

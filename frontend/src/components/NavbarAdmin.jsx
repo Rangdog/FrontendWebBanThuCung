@@ -146,7 +146,7 @@ export default function NavbarAdmin(props) {
                       <ListItemIcon>
                       <SpaIcon />
                       </ListItemIcon>
-                      <ListItemText primary={"Quản lý giông"} />
+                      <ListItemText primary={"Quản lý giống"} />
                     </ListItemButton>
                   </ListItem>
                 </>

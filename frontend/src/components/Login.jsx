@@ -30,7 +30,7 @@ const Login = () => {
         localStorage.setItem("quyen", response.data.quyen);
         localStorage.setItem("Token", response.data.token);
         if (response.data.quyen === "khachhang") {
-          navigate(`/home`);
+          navigate(`/`);
         } else {
           navigate("/admin");
         }

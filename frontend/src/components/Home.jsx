@@ -196,11 +196,29 @@ const Home = () => {
     const byteArray = new Uint8Array(byteNumbers);
     return new Blob([byteArray], { type: mime });
   };
+
+  const getHinhAnhsp = (src)=>{
+    if(src){
+      const base64Image = src;
+      const blob = base64ToBlob(base64Image, 'image/jpeg');
+      const imageUrl = URL.createObjectURL(blob);
+      return imageUrl
+    }
+    else{
+      return "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTilBHGuqpKFdJat7nk6AriQdF1cwa37Gl8fg&s"
+    }
+            
+  }
 const getHinhAnh = (src)=>{
-  const base64Image = src;
-  const blob = base64ToBlob(base64Image, 'image/jpeg');
-  const imageUrl = URL.createObjectURL(blob);
-  return imageUrl
+  if(src){
+    const base64Image = src;
+    const blob = base64ToBlob(base64Image, 'image/jpeg');
+    const imageUrl = URL.createObjectURL(blob);
+    return imageUrl
+  }
+  else{
+    return "https://png.pngtree.com/png-vector/20240202/ourlarge/pngtree-cute-cat-cartoon-kitten-pet-png-image_11584958.png"
+  }
           
 }
   return (
@@ -233,7 +251,7 @@ const getHinhAnh = (src)=>{
             <CardMedia
                   component="img"
                   height="200"
-                  image={product.hinhAnh ? getHinhAnh(product.hinhAnh): ''}
+                  image={getHinhAnhsp(product.hinhAnh)}
                   alt={product.tenSanPham}
                   onClick={() => navigate(`/product/${product.maSanPham}`)}
                 />
@@ -323,7 +341,7 @@ const getHinhAnh = (src)=>{
               <CardMedia
                   component="img"
                   height="200"
-                  image={pet.hinhAnh ? getHinhAnh(pet.hinhAnh): ''}
+                  image={getHinhAnh(pet.hinhAnh)}
                   alt={pet.tenThuCung}
                   onClick={() => navigate(`/pet/${pet.maThuCung}`)}
                 />

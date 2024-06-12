@@ -21,6 +21,7 @@ import CustomerProfile from "./components/Customer/CustomerProfile";
 import ManageThuCung from "./components/ManageThuCung";
 import ManageProduct from "./components/ManageProduct";
 import MakeInvoice from "./components/MakeInvoice";
+import Confirm from "./components/Confirm";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
@@ -32,6 +33,7 @@ import ProductItem from "./components/ProductItem";
 import PetItem from "./components/PetItem";
 
 import ProtectedRouterToken from "./components/ProtectedRouterToken";
+import ProtectedRouter from "./components/ProtectedRouterQuyen";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -49,6 +51,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/register/confirm" element={<Confirm />} />
           <Route  element={<ProtectedRouterToken/>}>
             <Route path="/cart" element={<Cart />} />
             <Route path="/order" element={<Order />} />
@@ -63,51 +66,53 @@ function App() {
           {/* <Route path="/cart" element={<Cart />} /> */}
         </Routes>
         <Routes>
-          <Route element={<ProtectedRouterToken/>} >
-            <Route
-              path="/admin"
-              element={<NavbarAdmin content={<ManageAccount />} />}
-            />
-            <Route
-              path="/admin/nhanvien"
-              element={<NavbarAdmin content={<ManageEmployees />} />}
-            />
-            <Route
-              path="/admin/chinhanh"
-              element={<NavbarAdmin content={<ManageBranch />} />}
-            />
-            <Route
-              path="/admin/thucung"
-              element={<NavbarAdmin content={<ManageThuCung />} />}
-            />
-            <Route
-              path="/admin/loaisp"
-              element={<NavbarAdmin content={<ManageType />} />}
-            />
-            <Route
-              path="/admin/loaithucung"
-              element={<NavbarAdmin content={<ManagePet />} />}
-            />
-            <Route
-              path="/admin/giong"
-              element={<NavbarAdmin content={<ManageBreeds />} />}
-            />
-            <Route
-              path="/admin/banggia"
-              element={<NavbarAdmin content={<ManagePrice />} />}
-            />
-            <Route
-              path="/admin/nhaphang"
-              element={<NavbarAdmin content={<ImportProduct />} />}
-            />
-            <Route
-              path="/admin/sanpham"
-              element={<NavbarAdmin content={<ManageProduct />} />}
-            />
-             <Route
-              path="/admin/laphoadon"
-              element={<NavbarAdmin content={<MakeInvoice />} />}
-            />
+          <Route element={<ProtectedRouter/>}>
+            <Route element={<ProtectedRouterToken/>} >
+                <Route
+                  path="/admin"
+                  element={<NavbarAdmin content={<ManageAccount />} />}
+                />
+                <Route
+                  path="/admin/nhanvien"
+                  element={<NavbarAdmin content={<ManageEmployees />} />}
+                />
+                <Route
+                  path="/admin/chinhanh"
+                  element={<NavbarAdmin content={<ManageBranch />} />}
+                />
+                <Route
+                  path="/admin/thucung"
+                  element={<NavbarAdmin content={<ManageThuCung />} />}
+                />
+                <Route
+                  path="/admin/loaisp"
+                  element={<NavbarAdmin content={<ManageType />} />}
+                />
+                <Route
+                  path="/admin/loaithucung"
+                  element={<NavbarAdmin content={<ManagePet />} />}
+                />
+                <Route
+                  path="/admin/giong"
+                  element={<NavbarAdmin content={<ManageBreeds />} />}
+                />
+                <Route
+                  path="/admin/banggia"
+                  element={<NavbarAdmin content={<ManagePrice />} />}
+                />
+                <Route
+                  path="/admin/nhaphang"
+                  element={<NavbarAdmin content={<ImportProduct />} />}
+                />
+                <Route
+                  path="/admin/sanpham"
+                  element={<NavbarAdmin content={<ManageProduct />} />}
+                />
+                <Route
+                  path="/admin/laphoadon"
+                  element={<NavbarAdmin content={<MakeInvoice />} />}
+                />
+              </Route>
           </Route>
         </Routes>
       </div>

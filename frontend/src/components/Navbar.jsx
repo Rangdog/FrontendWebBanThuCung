@@ -92,13 +92,10 @@ export default function PrimarySearchAppBar() {
   };
 
   const handleLogout = () => {
-    AxiosInstance.post("logoutall/", {}).then(() => {
-      setAnchorEl(null);
-      handleMobileMenuClose();
-      localStorage.removeItem("Token");
-      localStorage.removeItem("tenDangNhap");
-      navigate("/");
-    });
+    localStorage.removeItem("Token");
+    localStorage.removeItem("tenDangNhap");
+    localStorage.removeItem("quyen")
+    navigate("/");
   };
 
   const handleMenuClose = () => {
