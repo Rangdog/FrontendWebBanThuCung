@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Container,
   TextField,
@@ -33,6 +33,7 @@ const Order = () => {
   const [loadingDistricts, setLoadingDistricts] = useState(false);
   const [loadingWards, setLoadingWards] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [fullName, setFullName] = useState("");
 
   const [cartProducts, setCartProducts] = useState([]);
   const [cartPets, setCartPets] = useState([]);
@@ -42,6 +43,13 @@ const Order = () => {
 
   const [selectedBranch, setSelectedBranch] = useState("");
   const [maKhachHang, setMaKhachHang] = useState("");
+
+  const phoneNumberRef = useRef(null);
+  const specificAddressRef = useRef(null);
+  const fullNameRef = useRef(null);
+  const provinceRef = useRef(null);
+  const districtRef = useRef(null);
+  const wardRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -182,6 +190,18 @@ const Order = () => {
   };
 
   const handleQuantityChange = (type, id, value) => {
+    let inventory = {};
+    if (type === "product") {
+      inventory = cartProducts.find((item) => item.maSanPham === id).soLuongTon;
+    } else {
+      inventory = cartPets.find((item) => item.maThuCung === id).soLuongTon;
+    }
+
+    if (value > inventory) {
+      alert(`Số lượng không thể vượt quá số lượng tồn (${inventory})`);
+      return;
+    }
+
     if (type === "product") {
       setProductQuantities((prev) => ({
         ...prev,
@@ -195,10 +215,68 @@ const Order = () => {
     }
   };
 
+  // Kiểm tra thông tin giao hàng nhập hợp lệ
+  const isShippingInfoValid = () => {
+    return (
+      fullName.trim() !== "" &&
+      phoneNumber.trim() !== "" &&
+      selectedProvince !== null &&
+      selectedDistrict !== null &&
+      selectedWard !== null &&
+      specificAddress.trim() !== ""
+    );
+  };
+
+  // Xử lý nút đặt hàng
   const placeOrder = async () => {
+    if (!isShippingInfoValid()) {
+      if (fullName.trim() === "") {
+        fullNameRef.current.focus();
+        alert("Tên không được để trống!");
+        return;
+      }
+      if (phoneNumber.trim() === "") {
+        phoneNumberRef.current.focus();
+        alert("Số điện thoại không được để trống!");
+        return;
+      }
+
+      if (selectedProvince === null) {
+        alert("Vui lòng chọn tinh/ thành phố!");
+        provinceRef.current.focus();
+        return;
+      }
+
+      if (selectedDistrict === null) {
+        alert("Vui lòng chọn quận/huyện!");
+        districtRef.current.focus();
+        return;
+      }
+
+      if (selectedWard === null) {
+        alert("Vui lòng chọn phường/xã!");
+        wardRef.current.focus();
+        return;
+      }
+
+      if (specificAddress.trim() === "") {
+        specificAddressRef.current.focus();
+        alert("Địa chỉ không được để trống!");
+        return;
+      }
+
+      return;
+    }
     try {
       const orderInfoData = {
-        diaChi: specificAddress,
+        diaChi:
+          specificAddress +
+          ", " +
+          selectedWard.full_name +
+          ", " +
+          selectedDistrict.full_name +
+          ", " +
+          selectedProvince.full_name,
         soDienThoai: phoneNumber,
         maChiNhanh: selectedBranch,
         maKhachhang: maKhachHang,
@@ -245,6 +323,7 @@ const Order = () => {
 
       navigate("/cart");
     } catch (error) {
+      alert("Đặt hàng thất bại!");
       console.error("Đặt hàng thất bại:", error.message);
       // Hiển thị thông báo lỗi cho người dùng
     }
@@ -259,16 +338,25 @@ const Order = () => {
         <Grid item xs={6}>
           <Paper elevation={3} style={{ padding: "20px" }}>
             <Typography variant="h6">Thông tin giao hàng:</Typography>
-            <TextField fullWidth label="Họ và tên" margin="normal" />
+            <TextField
+              fullWidth
+              label="Họ và tên"
+              margin="normal"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              inputRef={fullNameRef}
+            />
             <TextField
               fullWidth
               label="Số điện thoại"
               margin="normal"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
+              inputRef={phoneNumberRef}
             />
             <Box display="flex" marginBottom="16px">
               <Autocomplete
+                ref={provinceRef}
                 options={provinces}
                 getOptionLabel={(option) => option.full_name}
                 value={selectedProvince}
@@ -301,6 +389,7 @@ const Order = () => {
                 style={{ marginRight: "10px" }}
               />
               <Autocomplete
+                ref={districtRef}
                 options={districts}
                 getOptionLabel={(option) => option.full_name}
                 value={selectedDistrict}
@@ -332,6 +421,7 @@ const Order = () => {
                 style={{ marginRight: "10px" }}
               />
               <Autocomplete
+                ref={wardRef}
                 options={wards}
                 getOptionLabel={(option) => option.full_name}
                 value={selectedWard}
@@ -365,6 +455,7 @@ const Order = () => {
               margin="normal"
               value={specificAddress}
               onChange={(e) => setSpecificAddress(e.target.value)}
+              inputRef={specificAddressRef}
             />
             <Typography variant="h6">Phương thức thanh toán</Typography>
             <Typography>Thanh toán khi nhận hàng</Typography>

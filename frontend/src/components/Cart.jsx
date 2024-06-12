@@ -302,19 +302,18 @@ function Cart() {
           spacing={2}
         >
           <Grid item>
-            <Typography variant="h6"></Typography>
-          </Grid>
-          <Grid item>
-            <Link
-              to={{
-                pathname: "/order",
-              }}
-              style={{ textDecoration: "none" }}
-            >
-              <Button variant="contained" color="warning">
-                Đặt hàng
-              </Button>
-            </Link>
+            {filteredProducts.length > 0 || filterePets.length > 0 ? (
+              <Link
+                to={{
+                  pathname: "/order",
+                }}
+                style={{ textDecoration: "none" }}
+              >
+                <Button variant="contained" color="warning">
+                  Đặt hàng
+                </Button>
+              </Link>
+            ) : null}
           </Grid>
         </Grid>
       </Box>
