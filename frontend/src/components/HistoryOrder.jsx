@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -9,38 +9,29 @@ import {
   Grid,
   Box,
 } from "@mui/material";
-
-// Giả định dữ liệu đơn hàng
-const orders = [
-  {
-    id: 1,
-    customerName: "Nguyễn Văn A",
-    totalAmount: 500000,
-    status: "paid", // Đã thanh toán
-    items: [
-      { id: 1, name: "Sản phẩm 1", price: 200000, quantity: 2 },
-      { id: 2, name: "Sản phẩm 2", price: 150000, quantity: 1 },
-    ],
-  },
-  {
-    id: 2,
-    customerName: "Trần Thị B",
-    totalAmount: 800000,
-    status: "unpaid", // Chưa thanh toán
-    items: [
-      { id: 3, name: "Sản phẩm 3", price: 300000, quantity: 1 },
-      { id: 4, name: "Sản phẩm 4", price: 500000, quantity: 1 },
-    ],
-  },
-  // Thêm đơn hàng khác nếu cần
-];
+import AxiosInstance from "./AxiosInstante";
 
 const HistoryOrder = () => {
+  const [orders, setOrders] = useState({});
   const [filter, setFilter] = useState("all");
 
   const handleChangeFilter = (event) => {
     setFilter(event.target.value);
   };
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const response = await AxiosInstance.get("/order/don-dat");
+        console.log("Order Data:", response.data);
+        setOrders(response.data);
+      } catch (error) {
+        console.error("Error fetching pets:", error);
+      }
+    };
+
+    fetchOrder();
+  }, []);
 
   const filteredOrders =
     filter === "all"

@@ -18,29 +18,23 @@ const StrikeThroughText = styled(Typography)({
   marginRight: "8px",
 });
 
-const ProductItem = () => {
-  const { id } = useParams();
-
-  const [product, setProduct] = useState(null);
+const PetItem = () => {
+  const { id } = useParams(); // Assuming you are using React Router for routing
+  console.log(id);
+  const [pet, setPet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const maChiNhanh = localStorage.getItem("maChiNhanh");
   const maKhachHang = localStorage.getItem("tenDangNhap");
-  console.log(maChiNhanh);
-  console.log(maKhachHang);
-  console.log(id);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchPet = async () => {
       try {
-        const response = await AxiosInstance.get(`/center/ct-san-pham`);
-        const productData = response.data.find(
-          (p) =>
-            p.maSanPham.toString() === id &&
-            p.maChiNhanh.toString() === maChiNhanh
+        const response = await AxiosInstance.get(`/center/ct-thu-cung`);
+        const petData = response.data.find(
+          (p) => p.maThuCung.toString() === id
         );
-        setProduct(productData);
-        console.log(productData);
+        setPet(petData);
+        console.log(petData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -48,8 +42,8 @@ const ProductItem = () => {
       }
     };
 
-    fetchProduct();
-  }, [id, maChiNhanh]);
+    fetchPet();
+  }, [id]);
 
   if (loading) {
     return (
@@ -79,15 +73,13 @@ const ProductItem = () => {
     );
   }
 
-  const addToCartProducts = async (id) => {
+  const addToCartPets = async (id) => {
     try {
-      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
+      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
         maKhachHang: maKhachHang,
-        maSanPham: id,
-        maChiNhanh: maChiNhanh,
+        maThuCung: id,
       });
-      console.log(product);
-      alert("Đã thêm sản phẩm vào giỏ hàng!");
+      alert("Đã thêm thú cưng vào giỏ hàng!");
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
@@ -102,34 +94,34 @@ const ProductItem = () => {
             component="img"
             height="600px"
             image={
-              product.hinhAnh ||
+              pet.hinhAnh ||
               "https://plus.unsplash.com/premium_photo-1714675222078-f7a808907c38?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             }
-            alt={`${product.tenSanPham}`}
+            alt={`${pet.tenThuCung}`}
             style={{ borderRadius: "10px" }}
           />
         </Grid>
         <Grid item xs={8} md={6}>
           <Typography variant="h4" component="div" gutterBottom>
-            {product.tenSanPham}
+            {pet.tenThuCung}
           </Typography>
           <Box display="flex" alignItems="center" marginBottom={2}>
-            {product.giaKhuyenMai ? (
+            {pet.giaKhuyenMai ? (
               <>
                 <Typography variant="body2" color="error">
-                  {product.giaKhuyenMai} VND
+                  {pet.giaKhuyenMai} VND
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{ textDecoration: "line-through", marginLeft: 1 }}
                 >
-                  {product.giaHienTai} VND
+                  {pet.giaHienTai} VND
                 </Typography>
               </>
-            ) : product.giaHienTai ? (
+            ) : pet.giaHienTai ? (
               <Typography variant="body2" color="text.primary">
-                {product.giaHienTai} VND
+                {pet.giaHienTai} VND
               </Typography>
             ) : (
               <Typography variant="body2" color="error">
@@ -138,18 +130,26 @@ const ProductItem = () => {
             )}
           </Box>
           <Typography variant="body1" gutterBottom>
-            Loại : {product.tenLoaiSanPham}
+            Giống : {pet.tenGiong}
           </Typography>
+
           <Box display="flex" alignItems="center" marginBottom={2}>
             <Typography variant="body1" marginRight={2}>
-              Số lượng tồn: {product.soLuongTon}
+              Số lượng tồn: {pet.soLuongTon}
             </Typography>
           </Box>
-          {product.giaHienTai ? (
+          <Box display="flex" alignItems="center" marginBottom={2}>
+            <Typography variant="body1" marginRight={2}>
+              Mô tả: {pet.moTa}
+            </Typography>
+          </Box>
+
+          {pet.giaHienTai ? (
             <Button
               variant="contained"
               size="large"
-              onClick={() => addToCartProducts(product.maSanPham)}
+              onClick={() => addToCartPets(pet.maThuCung)}
+              color="primary"
             >
               Thêm vào giỏ hàng
             </Button>
@@ -157,8 +157,9 @@ const ProductItem = () => {
             <Button
               variant="contained"
               size="large"
-              onClick={() => addToCartProducts(product.maSanPham)}
+              onClick={() => addToCartPets(pet.maThuCung)}
               disabled
+              color="primary"
             >
               Thêm vào giỏ hàng
             </Button>
@@ -169,4 +170,4 @@ const ProductItem = () => {
   );
 };
 
-export default ProductItem;
+export default PetItem;

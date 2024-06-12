@@ -29,6 +29,7 @@ import Order from "./components/Order";
 import HistoryOrder from "./components/HistoryOrder";
 import OrderDetail from "./components/OrderDetail";
 import ProductItem from "./components/ProductItem";
+import PetItem from "./components/PetItem";
 
 import ProtectedRouterToken from "./components/ProtectedRouterToken";
 
@@ -55,7 +56,8 @@ function App() {
             <Route path="/profile" element={<CustomerProfile />} />
             <Route path="/history" element={<HistoryOrder />} />
             <Route path="/orderdetail" element={<OrderDetail />} />
-            <Route path="/product/:id" component={ProductItem} />
+            <Route path="/product/:id" element={<ProductItem />} />
+            <Route path="/pet/:id" element={<PetItem />} />
           </Route>
           {/* <Route path="/register" element={<Register />} /> */}
           {/* <Route path="/cart" element={<Cart />} /> */}

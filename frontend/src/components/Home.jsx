@@ -15,8 +15,8 @@ import {
   Pagination,
   Divider,
 } from "@mui/material";
-import { Link } from "react-router-dom";
 import AxiosInstance from "./AxiosInstante";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [maKhachHang, setMaKhachHang] = useState("");
@@ -30,7 +30,7 @@ const Home = () => {
   const [pageProduct, setPageProduct] = useState(1); // Product pagination page
   const [pagePet, setPagePet] = useState(1); // Pet pagination page
   const itemsPerPage = 8; // Number of items per page
-
+  const navigate = useNavigate();
   useEffect(() => {
     const maKhachHang = localStorage.getItem("tenDangNhap");
     if (maKhachHang) {
@@ -45,6 +45,7 @@ const Home = () => {
         setBranches(response.data);
         if (response.data.length > 0) {
           setSelectedBranch(response.data[0].maChiNhanh);
+          localStorage.setItem("maChiNhanh", response.data[0].maChiNhanh);
         }
       } catch (error) {
         console.error("Error fetching branches:", error);
@@ -77,6 +78,107 @@ const Home = () => {
     fetchProducts();
     fetchPets();
   }, []);
+
+  const addToCartPets = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
+        maKhachHang: maKhachHang,
+        maThuCung: id,
+      });
+      alert("Đã thêm thú cưng vào giỏ hàng!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
+    }
+  };
+
+  const addToCartProducts = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
+        maKhachHang: maKhachHang,
+        maSanPham: id,
+        maChiNhanh: selectedBranch,
+      });
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
+    }
+  };
+
+  useEffect(() => {
+    const maKhachHang = localStorage.getItem("tenDangNhap");
+    if (maKhachHang) {
+      setMaKhachHang(maKhachHang);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const response = await AxiosInstance.get("/center/chinhanh");
+        setBranches(response.data);
+        if (response.data.length > 0) {
+          setSelectedBranch(response.data[0].maChiNhanh);
+          localStorage.setItem("maChiNhanh", response.data[0].maChiNhanh);
+        }
+      } catch (error) {
+        console.error("Error fetching branches:", error);
+      }
+    };
+
+    fetchBranches();
+  }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await AxiosInstance.get("/center/ct-san-pham");
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    const fetchPets = async () => {
+      try {
+        const response = await AxiosInstance.get("/center/ct-thu-cung");
+        setPets(response.data);
+      } catch (error) {
+        console.error("Error fetching pets:", error);
+      }
+    };
+
+    fetchProducts();
+    fetchPets();
+  }, []);
+
+  const addToCartPets = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/them-thu-cung", {
+        maKhachHang: maKhachHang,
+        maThuCung: id,
+      });
+      alert("Đã thêm thú cưng vào giỏ hàng!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
+    }
+  };
+
+  const addToCartProducts = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/them-san-pham", {
+        maKhachHang: maKhachHang,
+        maSanPham: id,
+        maChiNhanh: selectedBranch,
+      });
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Có lỗi xảy ra khi thêm vào giỏ hàng!");
+    }
+  };
 
   useEffect(() => {
     if (selectedBranch !== null) {
@@ -182,9 +284,16 @@ const getHinhAnh = (src)=>{
             <Card
               sx={{ display: "flex", flexDirection: "column", height: "100%" }}
             >
-              <Link
-                to={`/product/${product.maSanPham}`}
-                style={{ textDecoration: "none", color: "inherit" }}
+              <CardMedia
+                component="img"
+                height="200"
+                image={product.hinhAnh}
+                alt={product.tenSanPham}
+                onClick={() => navigate(`/product/${product.maSanPham}`)}
+              />
+              <CardContent
+                sx={{ flex: "1 0 auto" }}
+                onClick={() => navigate(`/product/${product.maSanPham}`)}
               >
                 <CardMedia
                   component="img"
@@ -217,22 +326,44 @@ const getHinhAnh = (src)=>{
                       <Typography variant="body2" color="text.primary">
                         {product.giaHienTai} VND
                       </Typography>
-                    )}
-                  </Box>
+                    </>
+                  ) : product.giaHienTai ? (
+                    <Typography variant="body2" color="text.primary">
+                      {product.giaHienTai} VND
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2" color="error">
+                      LIÊN HỆ
+                    </Typography>
+                  )}
+                </Box>
 
-                  <Typography variant="body2" color="text.primary">
-                    Số lượng tồn: {product.soLuongTon}
-                  </Typography>
-                </CardContent>
-              </Link>
-              <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                <Button
-                  size="small"
-                  onClick={() => addToCartProducts(product.maSanPham)}
-                >
-                  Thêm vào giỏ hàng
-                </Button>
-              </Box>
+                <Typography variant="body2" color="text.primary">
+                  Số lượng tồn: {product.soLuongTon}
+                </Typography>
+              </CardContent>
+              {product.giaHienTai ? (
+                <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => addToCartProducts(product.maSanPham)}
+                  >
+                    Thêm vào giỏ hàng
+                  </Button>
+                </Box>
+              ) : (
+                <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => addToCartProducts(product.maSanPham)}
+                    disabled
+                  >
+                    Thêm vào giỏ hàng
+                  </Button>
+                </Box>
+              )}
             </Card>
           </Grid>
         )}
@@ -255,9 +386,16 @@ const getHinhAnh = (src)=>{
             <Card
               sx={{ display: "flex", flexDirection: "column", height: "100%" }}
             >
-              <Link
-                to={`/product/${pet.maThuCung}`}
-                style={{ textDecoration: "none", color: "inherit" }}
+              <CardMedia
+                component="img"
+                height="200"
+                image={pet.hinhAnh}
+                alt={pet.tenThuCung}
+                onClick={() => navigate(`/pet/${pet.maThuCung}`)}
+              />
+              <CardContent
+                sx={{ flex: "1 0 auto" }}
+                onClick={() => navigate(`/pet/${pet.maThuCung}`)}
               >
                 <CardMedia
                   component="img"
@@ -290,22 +428,47 @@ const getHinhAnh = (src)=>{
                       <Typography variant="body2" color="text.primary">
                         {pet.giaHienTai} VND
                       </Typography>
-                    )}
-                  </Box>
-
+                    </>
+                  ) : pet.giaHienTai ? (
+                    <Typography variant="body2" color="text.primary">
+                      {pet.giaHienTai} VND
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2" color="error">
+                      LIÊN HỆ
+                    </Typography>
+                  )}
+                </Box>
+                {pet.soLuongTon ? (
                   <Typography variant="body2" color="text.primary">
                     Số lượng tồn: {pet.soLuongTon}
                   </Typography>
-                </CardContent>
-              </Link>
-              <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                <Button
-                  size="small"
-                  onClick={() => addToCartPets(pet.maThuCung)}
-                >
-                  Thêm vào giỏ hàng
-                </Button>
-              </Box>
+                ) : null}
+              </CardContent>
+              {pet.giaHienTai ? (
+                <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => addToCartPets(pet.maThuCung)}
+                    color="primary"
+                  >
+                    Thêm vào giỏ hàng
+                  </Button>
+                </Box>
+              ) : (
+                <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => addToCartPets(pet.maThuCung)}
+                    disabled
+                    color="primary"
+                  >
+                    Thêm vào giỏ hàng
+                  </Button>
+                </Box>
+              )}
             </Card>
           </Grid>
         ))}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Box,
@@ -14,24 +14,32 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
+import AxiosInstance from "../AxiosInstante";
 
 const CustomerProfile = () => {
-  const [profile, setProfile] = useState({
-    username: "ngoktaimk",
-    fullname: "Đoàn Ngọc Tài",
-    email: "ng******@gmail.com",
-    phone: "********28",
-    gender: "male",
-    day: "21",
-    month: "8",
-    year: "2002",
-    id: "123456789",
-  });
+  const [profile, setProfile] = useState({});
+  const maKhachHang = localStorage.getItem("tenDangNhap");
 
   const [profileImage, setProfileImage] = useState(
     "https://via.placeholder.com/150"
   );
   const [selectedImage, setSelectedImage] = useState(null);
+
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const response = await AxiosInstance.get(
+          `/identity/khachhang/${maKhachHang}`
+        );
+        console.log("Profile Data:", response.data);
+        setProfile(response.data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchBranches();
+  }, [maKhachHang]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -66,7 +74,6 @@ const CustomerProfile = () => {
     if (selectedImage) {
       formData.append("profileImage", selectedImage);
     }
-    // Send formData to the server or handle it according to your requirements
   };
 
   return (
@@ -84,16 +91,17 @@ const CustomerProfile = () => {
               fullWidth
               label="Tên đăng nhập"
               name="username"
-              value={profile.username}
+              value={profile.maKhachHang}
               onChange={handleInputChange}
               margin="normal"
               size="small"
+              focused
             />
             <TextField
               fullWidth
               label="Họ và Tên"
               name="fullname"
-              value={profile.fullname}
+              defaultValue={profile.ho + " " + profile.ten}
               onChange={handleInputChange}
               margin="normal"
               size="small"
@@ -106,6 +114,7 @@ const CustomerProfile = () => {
               onChange={handleInputChange}
               margin="normal"
               size="small"
+              focused
             />
             <TextField
               fullWidth

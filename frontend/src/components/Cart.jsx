@@ -113,15 +113,51 @@ function Cart() {
     localStorage.setItem("maChiNhanh", branchId);
   };
 
-  const handleDeleteItem = (id) => {
-    const updatedCartProducts = cartProducts.filter(
-      (product) => product.id !== id
-    );
-    setCartProducts(updatedCartProducts);
+  const handleDeleteProduct = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/bo-san-pham", {
+        maKhachHang: maKhachHang,
+        maSanPham: id,
+        maChiNhanh: selectedBranch,
+      });
+      alert("Đã xóa sản phẩm khỏi giỏ hàng!");
 
-    const updatedCartPets = cartPets.filter((pet) => pet.id !== id);
-    setCartProducts(updatedCartProducts);
-    setCartPets(updatedCartPets);
+      const responseProducts = await AxiosInstance.post(
+        "/center/gio-hang/san-pham",
+        {
+          maKhachHang: maKhachHang,
+          maChiNhanh: selectedBranch,
+        }
+      );
+
+      setCartProducts(responseProducts.data);
+    } catch (error) {
+      console.error("Error deleting to cart:", error);
+      alert("Có lỗi xảy ra khi xóa sản phẩm!");
+    }
+  };
+
+  const handleDeletePet = async (id) => {
+    try {
+      await AxiosInstance.post("/center/gio-hang/bo-thu-cung", {
+        maKhachHang: maKhachHang,
+        maThuCung: id,
+      });
+      alert("Đã xóa thú cưng khỏi giỏ hàng!");
+
+      const responsePets = await AxiosInstance.post(
+        "/center/gio-hang/thu-cung",
+        {
+          maKhachHang: maKhachHang,
+          maChiNhanh: selectedBranch,
+        }
+      );
+
+      setCartPets(responsePets.data);
+    } catch (error) {
+      console.error("Error deleting to cart:", error);
+      alert("Có lỗi xảy ra khi xóa sản phẩm!");
+    }
   };
 
   return (
@@ -186,7 +222,9 @@ function Cart() {
                     <TableCell>{item.soLuongTon}</TableCell>
 
                     <TableCell>
-                      <IconButton onClick={() => handleDeleteItem(item.id)}>
+                      <IconButton
+                        onClick={() => handleDeleteProduct(item.maSanPham)}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
@@ -233,7 +271,9 @@ function Cart() {
                     </TableCell>
                     <TableCell>{item.soLuongTon}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleDeleteItem(item.id)}>
+                      <IconButton
+                        onClick={() => handleDeletePet(item.maThuCung)}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
