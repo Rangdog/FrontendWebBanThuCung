@@ -61,7 +61,7 @@ const HistoryOrder = () => {
       </Box>
       <Grid container spacing={2}>
         {filteredOrders.map((order) => (
-          <Grid item key={order.id} xs={12}>
+          <Grid item key={order.soDonDat} xs={12}>
             <Box
               sx={{
                 border: 1,
@@ -71,11 +71,13 @@ const HistoryOrder = () => {
               }}
             >
               <Typography variant="h6">
-                Đơn hàng #{order.id} -{" "}
-                {order.status === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
+                Đơn hàng #{order.soDonDat} -{" "}
+                {order.trangThai === "true"
+                  ? "Đã thanh toán"
+                  : "Chưa thanh toán"}
               </Typography>
               <Typography variant="body1">
-                Khách hàng: {order.customerName}
+                Khách hàng: {order.maKhachHang}
               </Typography>
               <Typography variant="body1">
                 Tổng giá trị: {order.totalAmount.toLocaleString()} VNĐ
