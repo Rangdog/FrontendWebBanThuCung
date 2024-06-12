@@ -192,7 +192,7 @@ export default function NavbarAdmin(props) {
                   <ListItemIcon>
                      <PermIdentityIcon /> 
                   </ListItemIcon>
-                  <ListItemText primary={"Thông tin cá nhânh"} />
+                  <ListItemText primary={"Thông tin cá nhân"} />
                 </ListItemButton>
               </ListItem>
 
