@@ -21,6 +21,7 @@ import CustomerProfile from "./components/Customer/CustomerProfile";
 import ManageThuCung from "./components/ManageThuCung";
 import ManageProduct from "./components/ManageProduct";
 import MakeInvoice from "./components/MakeInvoice";
+import ManageInfor from "./components/ManageInfor";
 import Confirm from "./components/Confirm";
 
 import { Routes, Route, useLocation } from "react-router-dom";
@@ -114,6 +115,10 @@ function App() {
                 <Route
                   path="/admin/laphoadon"
                   element={<NavbarAdmin content={<MakeInvoice />} />}
+                />
+                <Route
+                  path="/admin/infor"
+                  element={<NavbarAdmin content={<ManageInfor />} />}
                 />
               </Route>
           </Route>

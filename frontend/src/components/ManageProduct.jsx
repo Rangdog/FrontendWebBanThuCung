@@ -637,7 +637,10 @@ useEffect(() => {
                         >
                             <TableCell>{product.maSanPham}</TableCell>
                             <TableCell> {product.hinhAnh && product.hinhAnh[0] && imageUrls[product.hinhAnh[0]] ? (
-                                    <img src={imageUrls[product.hinhAnh[0]]} alt="Hình ảnh" />
+ 
+                                  <div style={{ maxWidth: 150, maxHeight: 150 }}>
+                                    <img src={imageUrls[product.hinhAnh[0]]} alt="Example" style={{ width: '100%', height: '100%' }} />
+                                  </div>
                                 ) : ''}</TableCell>
                             <TableCell>{product.tenSanPham}</TableCell>
                             <TableCell>{product.giaHienTai}</TableCell>

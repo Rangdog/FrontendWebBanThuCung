@@ -286,6 +286,47 @@ const ManageEmployees = () => {
 //   const handleDeselect = () => {
 //     setSelectedUserIndex(null);
 //   };
+
+const base64ToBlob = (base64, mime) => {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mime });
+};
+const getHinhAnh = async (id) => {
+  try {
+      const res = await AxiosInstance.post("/center/hinhanh/get", [id]);
+      if (res.status === 200) {
+        const base64Image = res.data[0].source;
+        const blob = base64ToBlob(base64Image, 'image/jpeg');
+        const imageUrl = URL.createObjectURL(blob);
+        return imageUrl;
+      }
+  } catch (e) {
+      // console.log(e);
+  }
+  return null;
+}
+useEffect(() => {
+const fetchImageUrls = async () => {
+    const urls = {};
+    for (const pet of employees) {
+        if (pet.hinhAnh && pet.hinhAnh[0]) {
+            const imageUrl = await getHinhAnh(pet.hinhAnh[0]);
+            if (imageUrl) {
+                urls[pet.hinhAnh[0]] = imageUrl;
+            }
+        }
+    }
+    setImageUrls(urls);
+};
+
+fetchImageUrls();
+}, [employees]);
+
   useEffect(()=>{
     getEmployees()
   },[])
@@ -318,7 +359,12 @@ const ManageEmployees = () => {
                             sx={{ backgroundColor: selectedEmployee === index ? "#f0f0f0" : "inherit" }}
                         >
                             <TableCell>{employee.maNhanVien}</TableCell>
-                            <TableCell>{employee.hinhAnh}</TableCell>
+                            <TableCell> {employee.hinhAnh && employee.hinhAnh[0] && imageUrls[employee.hinhAnh[0]] ? (
+                                <div style={{ maxWidth: 150, maxHeight: 150 }}>
+                                  <img src={imageUrls[employee.hinhAnh[0]]} alt="Example" style={{ width: '100%', height: '100%' }} />
+                                </div>
+                                ) : ''}
+                              </TableCell>
                             <TableCell>{employee.ho + " " + employee.ten}</TableCell>
                             <TableCell>{employee.chucVu}</TableCell>
                             <TableCell>{employee.maChiNhanh}</TableCell>

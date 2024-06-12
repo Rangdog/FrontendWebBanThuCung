@@ -720,7 +720,10 @@ useEffect(() => {
                         >
                             <TableCell>{pet.maThuCung}</TableCell>
                             <TableCell> {pet.hinhAnh && pet.hinhAnh[0] && imageUrls[pet.hinhAnh[0]] ? (
-                                    <img src={imageUrls[pet.hinhAnh[0]]} alt="Hình ảnh" />
+                              <div style={{ maxWidth: 150, maxHeight: 150 }}>
+                                <img src={imageUrls[pet.hinhAnh[0]]} alt="Example" style={{ width: '100%', height: '100%' }} />
+                              </div>
+                                  
                                 ) : ''}</TableCell>
                             <TableCell>{pet.tenThuCung}</TableCell>
                             <TableCell>{pet.trangThaiBan}</TableCell>

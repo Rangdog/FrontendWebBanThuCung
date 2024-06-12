@@ -22,6 +22,7 @@ import SpaIcon from '@mui/icons-material/Spa';
 import CategoryIcon from '@mui/icons-material/Category';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 
 import {Link, useLocation} from 'react-router-dom';
 import {useNavigate } from "react-router-dom";
@@ -183,6 +184,15 @@ export default function NavbarAdmin(props) {
                      <InboxIcon /> 
                   </ListItemIcon>
                   <ListItemText primary={"Xem danh thu"} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem key={30} disablePadding>
+                <ListItemButton component = {Link} to = "/admin/infor" selected={"/admin/infor" === path}>
+                  <ListItemIcon>
+                     <PermIdentityIcon /> 
+                  </ListItemIcon>
+                  <ListItemText primary={"Thông tin cá nhânh"} />
                 </ListItemButton>
               </ListItem>
 
