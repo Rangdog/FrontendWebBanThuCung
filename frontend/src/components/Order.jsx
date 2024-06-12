@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import AxiosInstance from "./AxiosInstante";
+import { useNavigate } from "react-router-dom";
 
 const Order = () => {
   const [provinces, setProvinces] = useState([]);
@@ -41,6 +42,8 @@ const Order = () => {
 
   const [selectedBranch, setSelectedBranch] = useState("");
   const [maKhachHang, setMaKhachHang] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const maChiNhanh = localStorage.getItem("maChiNhanh");
@@ -229,6 +232,18 @@ const Order = () => {
       console.log(orderPets);
       await AxiosInstance.post("/order/dat-hang/tc", orderPets);
       alert("Đã đặt hàng thành công!");
+
+      const responseCart = await AxiosInstance.post(
+        "/center/gio-hang/bo-tat-ca",
+        {
+          maKhachHang: maKhachHang,
+          maChiNhanh: selectedBranch,
+        }
+      );
+      setCartPets(responseCart.data);
+      setCartProducts(responseCart.data);
+
+      navigate("/cart");
     } catch (error) {
       console.error("Đặt hàng thất bại:", error.message);
       // Hiển thị thông báo lỗi cho người dùng

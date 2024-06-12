@@ -131,7 +131,10 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={testusser}>Thông tin tài khoản</MenuItem>
+      <MenuItem onClick={() => navigate("/profile")}>
+        Thông tin tài khoản
+      </MenuItem>
+      <MenuItem onClick={() => navigate("/history")}>Lịch sử đặt hàng</MenuItem>
       <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
     </Menu>
   );
