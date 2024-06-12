@@ -46,17 +46,17 @@ function App() {
         {/* Chỗ này là đặt padding-top để tránh bị che bởi Navbar */}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          {/* <Route path="/" element={<Order />} /> */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/order" element={<Order />} />
-          <Route path="/changepassowrd" element={<ChangePassword />} />
-          <Route path="/profile" element={<CustomerProfile />} />
-          <Route path="/history" element={<HistoryOrder />} />
-          <Route path="/orderdetail" element={<OrderDetail />} />
-          <Route path="/product/:id" component={ProductItem} />
+          <Route  element={<ProtectedRouterToken/>}>
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/order" element={<Order />} />
+            <Route path="/changepassowrd" element={<ChangePassword />} />
+            <Route path="/profile" element={<CustomerProfile />} />
+            <Route path="/history" element={<HistoryOrder />} />
+            <Route path="/orderdetail" element={<OrderDetail />} />
+            <Route path="/product/:id" component={ProductItem} />
+          </Route>
           {/* <Route path="/register" element={<Register />} /> */}
           {/* <Route path="/cart" element={<Cart />} /> */}
         </Routes>

@@ -229,7 +229,7 @@ const CapNhapChiTietBangGia = ({ open, onClose, onSubmit, banggia })=>{
   };
   const getCtBangGiaThuCung = async (banggia) =>{
     try{
-        const res = await  AxiosInstance.get("center/ct-thu-cung")
+        const res = await  AxiosInstance.get("center/ct-thu-cung/bang-gia")
         const result = []
         for(const item of res.data){
             if(item.maBangGia === banggia.maBangGia){
@@ -245,7 +245,7 @@ const CapNhapChiTietBangGia = ({ open, onClose, onSubmit, banggia })=>{
     }
     const getCtBangGiaSanPham = async (banggia) =>{
         try{
-            const res = await  AxiosInstance.get("center/ct-san-pham")
+            const res = await  AxiosInstance.get("center/ct-san-pham/bang-gia")
             const result = []
             for(const item of res.data){
                 if(item.maBangGia === banggia.maBangGia){
