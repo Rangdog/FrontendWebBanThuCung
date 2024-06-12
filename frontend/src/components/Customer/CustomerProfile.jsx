@@ -29,6 +29,31 @@ const CustomerProfile = () => {
   );
   const [selectedImage, setSelectedImage] = useState(null);
 
+
+  const base64ToBlob = (base64, mime) => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mime });
+  };
+  const getHinhAnh = async (id) => {
+    try {
+        const res = await AxiosInstance.post("/identity/hinhanh/get", [id]);
+        if (res.status === 200) {
+          const base64Image = res.data[0].source;
+          const blob = base64ToBlob(base64Image, 'image/jpeg');
+          const imageUrl = URL.createObjectURL(blob);
+          setProfileImage(imageUrl)
+          return imageUrl;
+        }
+    } catch (e) {
+        // console.log(e);
+    }
+    return null;
+}
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -39,15 +64,9 @@ const CustomerProfile = () => {
         const profileData = response.data;
 
         setProfile(profileData);
-
-        if (profileData.hinhAnh && profileData.hinhAnh.length > 0) {
-          const imageResponse = await AxiosInstance.post(
-            "/identity/hinhanh/get",
-            { id: profileData.hinhAnh }
-          );
-          setProfileImage(
-            URL.createObjectURL(new Blob([imageResponse.data[0].source]))
-          );
+        console.log(profileData.hinhAnh[0])
+        if(profileData.hinhAnh){
+          getHinhAnh(profileData.hinhAnh[0])
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -134,7 +153,11 @@ const CustomerProfile = () => {
         formData.append("image", selectedImage);
         formData.append("maKhachHang", profile.maKhachHang);
 
-        await AxiosInstance.post("/identity/hinhanh", formData);
+        await AxiosInstance.post("/identity/hinhanh", formData,{
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
       }
 
       const profileResponse = await AxiosInstance.put(
