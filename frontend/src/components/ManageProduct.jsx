@@ -76,7 +76,7 @@ const AddSanPhamForm = ({ open, onClose, onSubmit }) => {
       };
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Thêm Thú Cưng</DialogTitle>
+      <DialogTitle>Thêm sản phẩm</DialogTitle>
       <DialogContent>
       <Box display="flex" alignItems="flex-start">
         <Box flex={1} pr={2}>
@@ -290,7 +290,7 @@ const EditSanPhamForm = ({ open, onClose, onSubmit, product }) => {
       }
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Chỉnh sửa Thú Cưng</DialogTitle>
+      <DialogTitle>Chỉnh sửa sản phẩm</DialogTitle>
       <DialogContent>
       <Box display="flex" alignItems="flex-start">
         <Box flex={1} pr={2}>
@@ -391,7 +391,7 @@ const ConfirmationDialog = ({ open, onClose, onConfirm }) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Xác nhận xóa</DialogTitle>
       <DialogContent>
-        Bạn có chắc chắn muốn xóa giống này không?
+        Bạn có chắc chắn muốn xóa sản phẩm này không?
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>No</Button>
@@ -415,6 +415,7 @@ const ManageAccount = () => {
       try{
         const res = await AxiosInstance.get("/center/sanpham")
         setProducts(res.data)
+        console.log(res.data)
       }
       catch(err){
         console.error(err);
@@ -490,6 +491,7 @@ const ManageAccount = () => {
       catch(e){
         enqueueSnackbar('Lỗi khi đẩy ảnh lên', {variant : 'error', autoHideDuration: 3000} )
         console.log(e)
+        getProduct()
       }
       }
     }
@@ -510,6 +512,7 @@ const ManageAccount = () => {
     console.log("Form Data:", data);
     const { hinhAnh, ...rest } = data;
     console.log(rest)
+    console.log(hinhAnh.get('image'))
     if(hinhAnh.get('image')){
       try{
         const res = await AxiosInstance.put("/center/sanpham", rest)
@@ -517,7 +520,7 @@ const ManageAccount = () => {
           try{
             const pushimage = await AxiosInstance.post("/center/image", {
               "image":hinhAnh.get('image'),
-              "maSanPham": res.data.maThuCung
+              "maSanPham": res.data.maSanPham
             },{
               headers: {
                   'Content-Type': 'multipart/form-data',
@@ -590,13 +593,15 @@ useEffect(() => {
   const fetchImageUrls = async () => {
       const urls = {};
       for (const pet of products) {
-          if (pet.hinhAnh && pet.hinhAnh[0]) {
-              const imageUrl = await getHinhAnh(pet.hinhAnh[0]);
+        if (pet.hinhAnh) {
+            for (const i in pet.hinhAnh){
+              const imageUrl = await getHinhAnh(pet.hinhAnh[i]);
               if (imageUrl) {
-                  urls[pet.hinhAnh[0]] = imageUrl;
+                urls[pet.hinhAnh[i]] = imageUrl;
               }
-          }
-      }
+            }
+        }
+    }
       setImageUrls(urls);
   };
 
@@ -605,7 +610,6 @@ useEffect(() => {
 
   useEffect(()=>{
     getProduct();
-    console.log(products)
   },[])
   return (
     <>
@@ -636,10 +640,10 @@ useEffect(() => {
                             sx={{ backgroundColor: selectedBreedIndex === index ? "#f0f0f0" : "inherit" }}
                         >
                             <TableCell>{product.maSanPham}</TableCell>
-                            <TableCell> {product.hinhAnh && product.hinhAnh[0] && imageUrls[product.hinhAnh[0]] ? (
+                            <TableCell> {product.hinhAnh ? (
  
                                   <div style={{ maxWidth: 150, maxHeight: 150 }}>
-                                    <img src={imageUrls[product.hinhAnh[0]]} alt="Example" style={{ width: '100%', height: '100%' }} />
+                                    <img src={imageUrls[product.hinhAnh[product.hinhAnh.length-1]]} alt="Example" style={{ width: '100%', height: '100%' }} />
                                   </div>
                                 ) : ''}</TableCell>
                             <TableCell>{product.tenSanPham}</TableCell>

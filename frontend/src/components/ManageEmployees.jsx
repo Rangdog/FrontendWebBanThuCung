@@ -316,13 +316,15 @@ useEffect(() => {
 const fetchImageUrls = async () => {
     const urls = {};
     for (const pet of employees) {
-        if (pet.hinhAnh && pet.hinhAnh[0]) {
-            const imageUrl = await getHinhAnh(pet.hinhAnh[0]);
+      if (pet.hinhAnh) {
+          for (const i in pet.hinhAnh){
+            const imageUrl = await getHinhAnh(pet.hinhAnh[i]);
             if (imageUrl) {
-                urls[pet.hinhAnh[0]] = imageUrl;
+              urls[pet.hinhAnh[i]] = imageUrl;
             }
-        }
-    }
+          }
+      }
+  }
     setImageUrls(urls);
 };
 
@@ -361,9 +363,9 @@ fetchImageUrls();
                             sx={{ backgroundColor: selectedEmployee === index ? "#f0f0f0" : "inherit" }}
                         >
                             <TableCell>{employee.maNhanVien}</TableCell>
-                            <TableCell> {employee.hinhAnh && employee.hinhAnh[0] && imageUrls[employee.hinhAnh[0]] ? (
+                            <TableCell> {employee.hinhAnh ? (
                                 <div style={{ maxWidth: 150, maxHeight: 150 }}>
-                                  <img src={imageUrls[employee.hinhAnh[0]]} alt="Example" style={{ width: '100%', height: '100%' }} />
+                                  <img src={imageUrls[employee.hinhAnh[employee.hinhAnh.length-1]]} alt="Example" style={{ width: '100%', height: '100%' }} />
                                 </div>
                                 ) : ''}
                               </TableCell>

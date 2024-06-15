@@ -83,7 +83,7 @@ const AddThuCungForm = ({ open, onClose, onSubmit }) => {
       };
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Thêm hoặc Chỉnh sửa Thú Cưng</DialogTitle>
+      <DialogTitle>Thêm hoặc Thú Cưng</DialogTitle>
       <DialogContent>
       <Box display="flex" alignItems="flex-start">
         <Box flex={1} pr={2}>
@@ -328,7 +328,7 @@ const EditThuCungForm = ({ open, onClose, onSubmit, pet }) => {
       }
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Thêm hoặc Chỉnh sửa Thú Cưng</DialogTitle>
+      <DialogTitle>Chỉnh sửa Thú Cưng</DialogTitle>
       <DialogContent>
       <Box display="flex" alignItems="flex-start">
         <Box flex={1} pr={2}>
@@ -471,7 +471,7 @@ const ConfirmationDialog = ({ open, onClose, onConfirm }) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Xác nhận xóa</DialogTitle>
       <DialogContent>
-        Bạn có chắc chắn muốn xóa giống này không?
+        Bạn có chắc chắn muốn xóa thú cưng này không?
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>No</Button>
@@ -571,6 +571,7 @@ const ManageAccount = () => {
       catch(e){
         enqueueSnackbar('Lỗi khi đẩy ảnh lên', {variant : 'error', autoHideDuration: 3000} )
         console.log(e)
+        getBreed()
       }
       }
     }
@@ -670,10 +671,12 @@ useEffect(() => {
   const fetchImageUrls = async () => {
       const urls = {};
       for (const pet of pets) {
-          if (pet.hinhAnh && pet.hinhAnh[0]) {
-              const imageUrl = await getHinhAnh(pet.hinhAnh[0]);
-              if (imageUrl) {
-                  urls[pet.hinhAnh[0]] = imageUrl;
+          if (pet.hinhAnh) {
+              for (const i in pet.hinhAnh){
+                const imageUrl = await getHinhAnh(pet.hinhAnh[i]);
+                if (imageUrl) {
+                  urls[pet.hinhAnh[i]] = imageUrl;
+                }
               }
           }
       }
@@ -719,9 +722,9 @@ useEffect(() => {
                             sx={{ backgroundColor: selectedBreedIndex === index ? "#f0f0f0" : "inherit" }}
                         >
                             <TableCell>{pet.maThuCung}</TableCell>
-                            <TableCell> {pet.hinhAnh && pet.hinhAnh[0] && imageUrls[pet.hinhAnh[0]] ? (
+                            <TableCell> {pet.hinhAnh ? (
                               <div style={{ maxWidth: 150, maxHeight: 150 }}>
-                                <img src={imageUrls[pet.hinhAnh[0]]} alt="Example" style={{ width: '100%', height: '100%' }} />
+                                <img src={imageUrls[pet.hinhAnh[pet.hinhAnh.length-1]]} alt="Example" style={{ width: '100%', height: '100%' }} />
                               </div>
                                   
                                 ) : ''}</TableCell>

@@ -65,9 +65,9 @@ const ManageInfor = () => {
         const profileData = response.data;
 
         setProfile(profileData);
-        console.log(profileData.hinhAnh[0])
+        console.log(profileData.hinhAnh.length)
         if(profileData.hinhAnh){
-          getHinhAnh(profileData.hinhAnh[0])
+          getHinhAnh(profileData.hinhAnh[profileData.hinhAnh.length-1])
         }
       } catch (error) {
         console.error("Error fetching profile:", error);

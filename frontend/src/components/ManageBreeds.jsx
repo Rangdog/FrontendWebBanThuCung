@@ -209,7 +209,7 @@ const ManageAccount = () => {
               getBreed();
           }
       } catch (err) {
-          enqueueSnackbar('Lỗi khi xóa thú cưng', { variant: 'error', autoHideDuration: 3000 });
+          enqueueSnackbar('Lỗi khi xóa giống', { variant: 'error', autoHideDuration: 3000 });
           console.error(err);
       }
       setIsConfirmOpen(false);

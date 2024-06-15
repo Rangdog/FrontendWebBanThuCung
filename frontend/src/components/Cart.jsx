@@ -29,7 +29,8 @@ function Cart() {
   const [branches, setBranches] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filterePets, setFilteredPets] = useState([]);
-
+  const [imageUrls, setImageUrls] = useState({});
+  const [imageUrlspet, setImageUrlspet] = useState({});
   useEffect(() => {
     const maKhachHang = localStorage.getItem("tenDangNhap");
     if (maKhachHang) {
@@ -159,6 +160,66 @@ function Cart() {
       alert("Có lỗi xảy ra khi xóa sản phẩm!");
     }
   };
+  const base64ToBlob = (base64, mime) => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mime });
+  };
+  const getHinhAnh = async (id) => {
+    try {
+        const res = await AxiosInstance.post("/center/hinhanh/get", [id]);
+        if (res.status === 200) {
+          const base64Image = res.data[0].source;
+          const blob = base64ToBlob(base64Image, 'image/jpeg');
+          const imageUrl = URL.createObjectURL(blob);
+          return imageUrl;
+        }
+    } catch (e) {
+        // console.log(e);
+    }
+    return null;
+}
+useEffect(() => {
+  const fetchImageUrls = async () => {
+      const urls = {};
+      for (const pet of filteredProducts) {
+          if (pet.hinhAnh) {
+              for (const i in pet.hinhAnh){
+                const imageUrl = await getHinhAnh(pet.hinhAnh[i]);
+                if (imageUrl) {
+                  urls[pet.hinhAnh[i]] = imageUrl;
+                }
+              }
+          }
+      }
+      setImageUrls(urls);
+  };
+
+  fetchImageUrls();
+}, [filteredProducts]);
+
+useEffect(() => {
+  const fetchImageUrls = async () => {
+      const urls = {};
+      for (const pet of filterePets) {
+          if (pet.hinhAnh) {
+              for (const i in pet.hinhAnh){
+                const imageUrl = await getHinhAnh(pet.hinhAnh[i]);
+                if (imageUrl) {
+                  urls[pet.hinhAnh[i]] = imageUrl;
+                }
+              }
+          }
+      }
+      setImageUrlspet(urls);
+  };
+
+  fetchImageUrls();
+}, [filterePets])
 
   return (
     <Container maxWidth="lg" sx={{ marginTop: 2, marginBottom: 2 }}>
@@ -210,7 +271,7 @@ function Cart() {
                   <TableRow key={item.maSanPham}>
                     <TableCell>
                       <img
-                        src={item.hinhAnh}
+                        src={item.hinhAnh ? imageUrls[item.hinhAnh[item.hinhAnh.length-1]]:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTilBHGuqpKFdJat7nk6AriQdF1cwa37Gl8fg&s'}
                         alt={item.tenSanPham}
                         style={{ width: 50, height: 50 }}
                       />
@@ -260,7 +321,7 @@ function Cart() {
                   <TableRow key={item.maThuCung}>
                     <TableCell>
                       <img
-                        src={item.hinhAnh}
+                        src={ item.hinhAnh ? imageUrlspet[item.hinhAnh[item.hinhAnh.length-1]]:'https://png.pngtree.com/png-vector/20240202/ourlarge/pngtree-cute-cat-cartoon-kitten-pet-png-image_11584958.png'}
                         alt={item.tenThuCung}
                         style={{ width: 50, height: 50 }}
                       />

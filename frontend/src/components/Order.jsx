@@ -270,13 +270,7 @@ const Order = () => {
     try {
       const orderInfoData = {
         diaChi:
-          specificAddress +
-          ", " +
-          selectedWard.full_name +
-          ", " +
-          selectedDistrict.full_name +
-          ", " +
-          selectedProvince.full_name,
+          specificAddress,
         soDienThoai: phoneNumber,
         maChiNhanh: selectedBranch,
         maKhachhang: maKhachHang,

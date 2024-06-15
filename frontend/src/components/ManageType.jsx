@@ -102,9 +102,9 @@ const EditTypeForm = ({ open, onClose, onSubmit, loai }) => {
 const ConfirmationDialog = ({ open, onClose, onConfirm }) => {
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Xác nhận xóa</DialogTitle>
+      <DialogTitle>Xác nhận lập đơn</DialogTitle>
       <DialogContent>
-        Bạn có chắc chắn muốn xóa loại sản phẩm này không?
+        Bạn có chắc chắn muốn lập hóa đơn này không?
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>No</Button>
@@ -143,11 +143,11 @@ const ManageAccount = () => {
       try {
           const res = await AxiosInstance.delete(`/center/loaisanpham/${loai.maLoaiSanPham}`);
           if (res.status === 200) {
-              enqueueSnackbar('Xóa loại sản phẩm thành công', { variant: 'success', autoHideDuration: 3000 });
+              enqueueSnackbar('Lập đợn thành công', { variant: 'success', autoHideDuration: 3000 });
               getLoai();
           }
       } catch (err) {
-          enqueueSnackbar('Lỗi khi xóa loại sản phẩm', { variant: 'error', autoHideDuration: 3000 });
+          enqueueSnackbar('Lỗi khi lập đơn', { variant: 'error', autoHideDuration: 3000 });
           console.error(err);
       }
       setIsConfirmOpen(false);

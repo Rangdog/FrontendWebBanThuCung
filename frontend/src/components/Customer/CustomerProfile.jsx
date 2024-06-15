@@ -66,7 +66,7 @@ const CustomerProfile = () => {
         setProfile(profileData);
         console.log(profileData.hinhAnh[0])
         if(profileData.hinhAnh){
-          getHinhAnh(profileData.hinhAnh[0])
+          getHinhAnh(profileData.hinhAnh[profileData.hinhAnh.length-1])
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
